@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doppelkopf Bundesliga Manager 2026</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            500: '#ff7300',
+                            600: '#e06300',
+                            700: '#c25200',
+                            900: '#7c3300',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Supabase JS CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
+
+    <!-- Header Navigation mit Admin-Button oben rechts -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-end">
+            <button onclick="requestAdminAccess()" class="px-3 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 text-slate-400 hover:text-brand-400 hover:bg-slate-800 border border-slate-800">
+                <i class="fa-solid fa-lock text-[10px]"></i>
+                Admin
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+
+        <!-- GROSSE HAUPTÜBERSCHRIFT MIT DDV LOGO -->
+        <div class="flex flex-col items-center justify-center text-center space-y-3 py-2">
+            <img src="logo.png" alt="DDV Logo" class="h-16 sm:h-20 w-auto object-contain bg-white/5 p-2 rounded-2xl border border-slate-700/80 shadow-lg">
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center justify-center gap-2">
+                DoKo Bundesliga <span class="text-xs bg-brand-500/20 text-brand-400 border border-brand-500/30 px-2.5 py-1 rounded-full font-medium">Saison 2026</span>
+            </h1>
+        </div>
+
+        <!-- Notification Banner -->
+        <div id="notification" class="hidden mb-6 p-4 rounded-xl border text-sm flex items-center justify-between transition-all duration-300">
+            <span id="notification-text"></span>
+            <button onclick="hideNotification()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- REITER NAVIGATION -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-900/60 p-3 sm:p-4 rounded-2xl border border-slate-800/80 backdrop-blur-sm">
+            <div class="flex space-x-2 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 justify-center sm:justify-start mx-auto">
+                <button onclick="switchTab('table')" id="nav-table" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 bg-brand-600 text-white shadow-md shadow-brand-600/30 shrink-0">
+                    <i class="fa-solid fa-trophy"></i>
+                    Bundesliga-Tabelle
+                </button>
+                <button onclick="switchTab('schedule')" id="nav-schedule" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800 shrink-0">
+                    <i class="fa-solid fa-calendar-days"></i>
+                    Spieltage & Gruppen
+                </button>
+                <button onclick="switchTab('single-2026')" id="nav-single-2026" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800 shrink-0">
+                    <i class="fa-solid fa-user-trophy"></i>
+                    Einzel 2026
+                </button>
+                <button onclick="switchTab('single-2025')" id="nav-single-2025" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800 shrink-0">
+                    <i class="fa-solid fa-medal"></i>
+                    Einzel 2025
+                </button>
+                <button onclick="switchTab('single-2024')" id="nav-single-2024" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800 shrink-0">
+                    <i class="fa-solid fa-award"></i>
+                    Einzel 2024
+                </button>
+            </div>
+            <div id="schedule-filter-wrapper" class="hidden sm:block">
+                <select id="schedule-filter" onchange="renderScheduleView()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-brand-500">
+                    <option value="all">Alle Spieltage anzeigen</option>
+                    <option value="1">Spieltag 1 + 2 (07.03.2026)</option>
+                    <option value="2">Spieltag 3 + 4 (18.04.2026)</option>
+                    <option value="3">Spieltag 5 + 6 (09.05.2026)</option>
+                    <option value="4">Spieltag 7 + 8 (10.10.2026)</option>
+                    <option value="5">Spieltag 9 + 10 (21.11.2026)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- TAB 1: BUNDESLIGA TABELLE -->
+        <section id="tab-table" class="space-y-6">
+            <div class="bg-slate-900/80 rounded-2xl border border-slate-800 shadow-xl overflow-hidden backdrop-blur-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                        <thead>
+                            <tr class="bg-slate-800/90 text-slate-300 uppercase tracking-wider text-[11px] border-b border-slate-700">
+                                <th class="py-3 px-3 text-center font-bold w-12">Pl.</th>
+                                <th class="py-3 px-4 font-bold">Mannschaft</th>
+                                <th class="py-3 px-3 text-center font-bold bg-brand-950/40 text-brand-400">WertP</th>
+                                <th class="py-3 px-3 text-center font-bold bg-slate-800">SpielP</th>
+                                <th class="py-3 px-2 text-center border-l border-slate-700">Spieltag 9+10<br><span class="text-[9px] font-normal text-slate-400">WP / SP</span></th>
+                                <th class="py-3 px-2 text-center border-l border-slate-700">Spieltag 7+8<br><span class="text-[9px] font-normal text-slate-400">WP / SP</span></th>
+                                <th class="py-3 px-2 text-center border-l border-slate-700">Spieltag 5+6<br><span class="text-[9px] font-normal text-slate-400">WP / SP</span></th>
+                                <th class="py-3 px-2 text-center border-l border-slate-700">Spieltag 3+4<br><span class="text-[9px] font-normal text-slate-400">WP / SP</span></th>
+                                <th class="py-3 px-2 text-center border-l border-slate-700">Spieltag 1+2<br><span class="text-[9px] font-normal text-slate-400">WP / SP</span></th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body" class="divide-y divide-slate-800/60 font-medium"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: SPIELTAGE & GRUPPEN -->
+        <section id="tab-schedule" class="hidden space-y-6">
+            <div id="schedule-container" class="space-y-6"></div>
+        </section>
+
+        <!-- TAB 3: EINZELWERTUNG 2026 -->
+        <section id="tab-single-2026" class="hidden space-y-6">
+            <div class="bg-slate-900/80 rounded-2xl border border-slate-800 shadow-xl overflow-hidden backdrop-blur-sm">
+                <div class="p-4 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <h3 class="font-bold text-white text-base">Bundesliga-Einzelwertung 2026 (nach ST 8)</h3>
+                    <input type="text" id="search-2026" onkeyup="filterSingleTable('2026')" placeholder="Spieler oder Verein suchen..." class="bg-slate-800 border border-slate-700 text-slate-100 text-xs rounded-xl px-3 py-2 w-full sm:w-64 focus:outline-none focus:border-brand-500">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm" id="table-single-2026">
+                        <thead>
+                            <tr class="bg-slate-800/90 text-slate-300 uppercase tracking-wider text-[11px] border-b border-slate-700">
+                                <th class="py-3 px-3 text-center font-bold w-16">Rang</th>
+                                <th class="py-3 px-4 font-bold">Name, Vorname</th>
+                                <th class="py-3 px-4 font-bold">Verein</th>
+                                <th class="py-3 px-4 font-bold">Mannschaft</th>
+                                <th class="py-3 px-3 text-center font-bold bg-brand-950/40 text-brand-400">Punkte (SP)</th>
+                                <th class="py-3 px-3 text-center font-bold">Runden (RD)</th>
+                                <th class="py-3 px-3 text-center font-bold">Schnitt (Ø)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60 font-medium"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: EINZELWERTUNG 2025 -->
+        <section id="tab-single-2025" class="hidden space-y-6">
+            <div class="bg-slate-900/80 rounded-2xl border border-slate-800 shadow-xl overflow-hidden backdrop-blur-sm">
+                <div class="p-4 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <h3 class="font-bold text-white text-base">Bundesliga-Einzelwertung 2025 (Endstand)</h3>
+                    <input type="text" id="search-2025" onkeyup="filterSingleTable('2025')" placeholder="Spieler oder Verein suchen..." class="bg-slate-800 border border-slate-700 text-slate-100 text-xs rounded-xl px-3 py-2 w-full sm:w-64 focus:outline-none focus:border-brand-500">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm" id="table-single-2025">
+                        <thead>
+                            <tr class="bg-slate-800/90 text-slate-300 uppercase tracking-wider text-[11px] border-b border-slate-700">
+                                <th class="py-3 px-3 text-center font-bold w-16">Rang</th>
+                                <th class="py-3 px-4 font-bold">Name, Vorname</th>
+                                <th class="py-3 px-4 font-bold">Verein</th>
+                                <th class="py-3 px-4 font-bold">Mannschaft</th>
+                                <th class="py-3 px-3 text-center font-bold bg-brand-950/40 text-brand-400">Punkte</th>
+                                <th class="py-3 px-3 text-center font-bold">Runden (RD)</th>
+                                <th class="py-3 px-3 text-center font-bold">Schnitt</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60 font-medium"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: EINZELWERTUNG 2024 -->
+        <section id="tab-single-2024" class="hidden space-y-6">
+            <div class="bg-slate-900/80 rounded-2xl border border-slate-800 shadow-xl overflow-hidden backdrop-blur-sm">
+                <div class="p-4 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <h3 class="font-bold text-white text-base">Bundesliga-Einzelwertung 2024 (Endstand)</h3>
+                    <input type="text" id="search-2024" onkeyup="filterSingleTable('2024')" placeholder="Spieler oder Verein suchen..." class="bg-slate-800 border border-slate-700 text-slate-100 text-xs rounded-xl px-3 py-2 w-full sm:w-64 focus:outline-none focus:border-brand-500">
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs sm:text-sm" id="table-single-2024">
+                        <thead>
+                            <tr class="bg-slate-800/90 text-slate-300 uppercase tracking-wider text-[11px] border-b border-slate-700">
+                                <th class="py-3 px-3 text-center font-bold w-16">Rang</th>
+                                <th class="py-3 px-4 font-bold">Name, Vorname</th>
+                                <th class="py-3 px-4 font-bold">Verein</th>
+                                <th class="py-3 px-4 font-bold">Mannschaft</th>
+                                <th class="py-3 px-3 text-center font-bold bg-brand-950/40 text-brand-400">Punkte</th>
+                                <th class="py-3 px-3 text-center font-bold">Runden (RD)</th>
+                                <th class="py-3 px-3 text-center font-bold">Schnitt</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60 font-medium"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 6: ADMIN-BEREICH -->
+        <section id="tab-admin" class="hidden space-y-6">
+            <div class="bg-slate-900/60 p-4 sm:p-6 rounded-2xl border border-slate-800/80 backdrop-blur-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                    <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-pen-to-square text-brand-400"></i> Admin: Ergebnisse & Ausrichter pflegen
+                    </h2>
+                    <p class="text-sm text-slate-400 mt-1">Trage hier Spielpunkte (SP) und Wertungspunkte (WP) ein.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="switchTab('table')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold border border-slate-700 transition">
+                        Zurück zur Tabelle
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2" id="admin-matchday-buttons"></div>
+            <div id="admin-groups-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+
+            <div class="flex justify-end pt-4">
+                <button onclick="saveAdminData()" class="px-6 py-3 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-lg shadow-brand-900/40 transition flex items-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i> Änderungen speichern & Tabelle aktualisieren
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- MANNSCHAFTS-STATISTIK MODAL -->
+    <div id="team-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-5 relative">
+            <button onclick="closeTeamModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="flex items-center space-x-3">
+                <div class="bg-brand-500/20 text-brand-400 p-3 rounded-xl border border-brand-500/30">
+                    <i class="fa-solid fa-shield-halved text-xl"></i>
+                </div>
+                <div>
+                    <h3 id="modal-team-name" class="text-lg font-bold text-white">Mannschafts-Statistik</h3>
+                    <p class="text-xs text-slate-400">Saisonverlauf aller Spieltage im Detail</p>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="bg-slate-800/80 text-slate-300 uppercase tracking-wider text-[10px] border-b border-slate-700">
+                            <th class="py-2.5 px-3 font-bold">Spieltag</th>
+                            <th class="py-2.5 px-3 text-center font-bold">Gruppe</th>
+                            <th class="py-2.5 px-3 text-center font-bold">Platz</th>
+                            <th class="py-2.5 px-3 text-center font-bold text-brand-400">WertP</th>
+                            <th class="py-2.5 px-3 text-center font-bold">SpielP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="modal-team-body" class="divide-y divide-slate-800/60 font-medium"></tbody>
+                </table>
+            </div>
+            <div class="flex justify-end pt-2">
+                <button onclick="closeTeamModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-xl transition">
+                    Schließen
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 border-t border-slate-800 mt-12 py-6 text-center text-xs text-slate-500">
+        <p>Doppelkopf Bundesliga Manager &copy; 2026 &bull; Webmanagement Jürgen Schützendorf</p>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Supabase Konfiguration
+        const SUPABASE_URL = 'https://lhusylpjnujlqomougmg.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_yXEueWILvAq-Vm2VfTuYyg_BIQeE1KK';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const SCHEDULE_TEMPLATE = {
+            1: {
+                title: "Spieltag 1 + 2",
+                date: "07.03.2026 + 08.03.2026",
+                groups: {
+                    1: ["SU MOBU / M DDUL", "F GUDE / M DDUL", "BOT DKC", "M WB"],
+                    2: ["GÖ TTER", "MZ DR", "UN O / MZ DR", "MO K92 / MS DCM"],
+                    3: ["H MAZO", "DA JA80 / MH FUKS", "BS 1DDC / H MAZO", "NOM BAZ"],
+                    4: ["W KD / CE LLE", "HB EBDC / OL 1ODC", "B FUEX", "B FUEX / LG LÜLÜ"]
+                }
+            },
+            2: {
+                title: "Spieltag 3 + 4",
+                date: "18.04.2026 + 19.04.2026",
+                groups: {
+                    1: ["UN O / MZ DR", "F GUDE / M DDUL", "HB EBDC / OL 1ODC", "H MAZO"],
+                    2: ["BOT DKC", "MZ DR", "DA JA80 / MH FUKS", "W KD / CE LLE"],
+                    3: ["B FUEX", "SU MOBU / M DDUL", "MO K92 / MS DCM", "NOM BAZ"],
+                    4: ["BS 1DDC / H MAZO", "GÖ TTER", "M WB", "B FUEX / LG LÜLÜ"]
+                }
+            },
+            3: {
+                title: "Spieltag 5 + 6",
+                date: "09.05.2026 + 10.05.2026",
+                groups: {
+                    1: ["DA JA80 / MH FUKS", "F GUDE / M DDUL", "GÖ TTER", "B FUEX"],
+                    2: ["HB EBDC / OL 1ODC", "MZ DR", "SU MOBU / M DDUL", "BS 1DDC / H MAZO"],
+                    3: ["M WB", "UN O / MZ DR", "W KD / CE LLE", "NOM BAZ"],
+                    4: ["MO K92 / MS DCM", "BOT DKC", "H MAZO", "B FUEX / LG LÜLÜ"]
+                }
+            },
+            4: {
+                title: "Spieltag 7 + 8",
+                date: "10.10.2026 + 11.10.2026",
+                groups: {
+                    1: ["B FUEX / LG LÜLÜ", "UN O / MZ DR", "DA JA80 / MH FUKS", "SU MOBU / M DDUL"],
+                    2: ["NOM BAZ", "GÖ TTER", "HB EBDC / OL 1ODC", "BOT DKC"],
+                    3: ["MZ DR", "B FUEX", "H MAZO", "M WB"],
+                    4: ["F GUDE / M DDUL", "MO K92 / MS DCM", "W KD / CE LLE", "BS 1DDC / H MAZO"]
+                }
+            },
+            5: {
+                title: "Spieltag 9 + 10",
+                date: "21.11.2026 + 22.11.2026",
+                groups: {
+                    1: ["B FUEX / LG LÜLÜ", "NOM BAZ", "MZ DR", "F GUDE / M DDUL"],
+                    2: ["DA JA80 / MH FUKS", "HB EBDC / OL 1ODC", "M WB", "MO K92 / MS DCM"],
+                    3: ["UN O / MZ DR", "BOT DKC", "B FUEX", "BS 1DDC / H MAZO"],
+                    4: ["SU MOBU / M DDUL", "GÖ TTER", "H MAZO", "W KD / CE LLE"]
+                }
+            }
+        };
+
+        const SINGLE_DATA_2026 = [
+            {"rank": 1, "name": "Fritsch, Felix", "club": "H MAZO", "team": "BS 1DDC / H MAZO", "pts": 336.0, "rd": 30, "avg": 11.2},
+            {"rank": 2, "name": "Jöns, Daniel", "club": "BOT DKC", "team": "BOT DKC", "pts": 317.0, "rd": 28, "avg": 11.32},
+            {"rank": 3, "name": "Lechner, Stefan", "club": "W KD", "team": "W KD / CE LLE", "pts": 310.0, "rd": 29, "avg": 10.69},
+            {"rank": 4, "name": "Marx, Tim", "club": "MZ DR", "team": "MZ DR", "pts": 269.0, "rd": 27, "avg": 9.96},
+            {"rank": 5, "name": "Hantschel, Sascha", "club": "BOT DKC", "team": "BOT DKC", "pts": 256.0, "rd": 32, "avg": 8.0},
+            {"rank": 6, "name": "Hoops, Lars-Peter", "club": "NOM BAZ", "team": "NOM BAZ", "pts": 229.0, "rd": 30, "avg": 7.63},
+            {"rank": 7, "name": "Weßels, Guido", "club": "MS DCM", "team": "MO K92 / MS DCM", "pts": 221.0, "rd": 18, "avg": 12.28},
+            {"rank": 8, "name": "Bressler, Dominik", "club": "B FUEX", "team": "B FUEX / LG LÜLÜ", "pts": 212.0, "rd": 18, "avg": 11.78},
+            {"rank": 9, "name": "Fotteler, Raphael", "club": "M WB", "team": "M WB", "pts": 202.0, "rd": 32, "avg": 6.31},
+            {"rank": 10, "name": "Vonrüden, Andreas", "club": "W KD", "team": "W KD / CE LLE", "pts": 191.0, "rd": 23, "avg": 8.3},
+            {"rank": 11, "name": "Quint, Robert", "club": "MZ DR", "team": "UN O / MZ DR", "pts": 190.0, "rd": 18, "avg": 10.56},
+            {"rank": 12, "name": "Hölig, Peter", "club": "B FUEX", "team": "B FUEX", "pts": 183.0, "rd": 24, "avg": 7.62},
+            {"rank": 13, "name": "Kobs, Corvin", "club": "DA JA80", "team": "DA JA80 / MH FUKS", "pts": 165.0, "rd": 28, "avg": 5.89},
+            {"rank": 14, "name": "Stopka, Dominik", "club": "BOT DKC", "team": "BOT DKC", "pts": 158.0, "rd": 16, "avg": 9.88},
+            {"rank": 14, "name": "Schmitz, Elmar", "club": "SU MOBU", "team": "SU MOBU / M DDUL", "pts": 158.0, "rd": 30, "avg": 5.27},
+            {"rank": 16, "name": "Helmchen, Albert", "club": "M DDUL", "team": "SU MOBU / M DDUL", "pts": 151.0, "rd": 30, "avg": 5.03},
+            {"rank": 17, "name": "Gonsberg, Jörg", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": 147.0, "rd": 24, "avg": 6.12},
+            {"rank": 18, "name": "Dittrich, Simon", "club": "H MAZO", "team": "H MAZO", "pts": 146.0, "rd": 24, "avg": 6.08},
+            {"rank": 19, "name": "von der Warth, Katja", "club": "MH FUKS", "team": "DA JA80 / MH FUKS", "pts": 140.0, "rd": 12, "avg": 11.67},
+            {"rank": 20, "name": "Storm, Dirk", "club": "H MAZO", "team": "BS 1DDC / H MAZO", "pts": 121.0, "rd": 23, "avg": 5.26},
+            {"rank": 21, "name": "Laun, Bodo", "club": "W KD", "team": "W KD / CE LLE", "pts": 104.0, "rd": 14, "avg": 7.43},
+            {"rank": 22, "name": "Lehmann, Leif", "club": "GÖ TTER", "team": "GÖ TTER", "pts": 100.0, "rd": 8, "avg": 12.5},
+            {"rank": 23, "name": "Dröge, Timo", "club": "CE LLE", "team": "W KD / CE LLE", "pts": 99.0, "rd": 9, "avg": 11.0},
+            {"rank": 24, "name": "Bolik, Christian", "club": "BOT DKC", "team": "BOT DKC", "pts": 96.0, "rd": 11, "avg": 8.73},
+            {"rank": 25, "name": "Heinecke, Daniel", "club": "MZ DR", "team": "MZ DR", "pts": 87.0, "rd": 18, "avg": 4.83},
+            {"rank": 25, "name": "Hilse, Sabine", "club": "NOM BAZ", "team": "NOM BAZ", "pts": 87.0, "rd": 27, "avg": 3.22},
+            {"rank": 27, "name": "Schewe, Philipp", "club": "GÖ TTER", "team": "GÖ TTER", "pts": 84.0, "rd": 16, "avg": 5.25},
+            {"rank": 28, "name": "Seidler, Frank", "club": "BOT DKC", "team": "BOT DKC", "pts": 80.0, "rd": 8, "avg": 10.0},
+            {"rank": 29, "name": "van der Wehr, Dirk", "club": "B FUEX", "team": "B FUEX / LG LÜLÜ", "pts": 76.0, "rd": 28, "avg": 2.71},
+            {"rank": 29, "name": "Wagner, Sebastian", "club": "M WB", "team": "M WB", "pts": 76.0, "rd": 32, "avg": 2.38},
+            {"rank": 31, "name": "Dinslaken, Melissa", "club": "M WB", "team": "M WB", "pts": 71.0, "rd": 12, "avg": 5.92},
+            {"rank": 31, "name": "Weidmann, Claudia", "club": "M DDUL", "team": "F GUDE / M DDUL", "pts": 71.0, "rd": 23, "avg": 3.09},
+            {"rank": 33, "name": "Richter, Jobst", "club": "UN O", "team": "UN O / MZ DR", "pts": 70.0, "rd": 15, "avg": 4.67},
+            {"rank": 34, "name": "Widderich, Nils", "club": "GÖ TTER", "team": "GÖ TTER", "pts": 66.0, "rd": 19, "avg": 3.47},
+            {"rank": 34, "name": "Genull, Oliver", "club": "NOM BAZ", "team": "NOM BAZ", "pts": 66.0, "rd": 18, "avg": 3.67},
+            {"rank": 36, "name": "Seliger, Falk", "club": "NOM BAZ", "team": "NOM BAZ", "pts": 63.0, "rd": 12, "avg": 5.25},
+            {"rank": 36, "name": "Vonrüden, Verena", "club": "W KD", "team": "W KD / CE LLE", "pts": 63.0, "rd": 7, "avg": 9.0},
+            {"rank": 38, "name": "Heinrich, Klaus", "club": "GÖ TTER", "team": "GÖ TTER", "pts": 62.0, "rd": 14, "avg": 4.43},
+            {"rank": 39, "name": "Kern, Daniel", "club": "M DDUL", "team": "F GUDE / M DDUL", "pts": 51.0, "rd": 24, "avg": 2.12},
+            {"rank": 40, "name": "Hegewald, Birte", "club": "SU MOBU", "team": "SU MOBU / M DDUL", "pts": 50.0, "rd": 19, "avg": 2.63},
+            {"rank": 41, "name": "Hein, Jörn", "club": "UN O", "team": "UN O / MZ DR", "pts": 49.0, "rd": 18, "avg": 2.72},
+            {"rank": 41, "name": "Plum, Hubert", "club": "H MAZO", "team": "H MAZO", "pts": 49.0, "rd": 32, "avg": 1.53},
+            {"rank": 43, "name": "Schmidt, Ralf", "club": "BOT DKC", "team": "BOT DKC", "pts": 48.0, "rd": 8, "avg": 6.0},
+            {"rank": 44, "name": "de Kok, Michael", "club": "BOT DKC", "team": "BOT DKC", "pts": 47.0, "rd": 25, "avg": 1.88},
+            {"rank": 45, "name": "Barczewski, Sylke", "club": "UN O", "team": "UN O / MZ DR", "pts": 43.0, "rd": 13, "avg": 3.31},
+            {"rank": 46, "name": "L'hoest, Wilko", "club": "DA JA80", "team": "DA JA80 / MH FUKS", "pts": 41.0, "rd": 20, "avg": 2.05},
+            {"rank": 46, "name": "Huesmann, Tim", "club": "GÖ TTER", "team": "GÖ TTER", "pts": 41.0, "rd": 12, "avg": 3.42},
+            {"rank": 48, "name": "Krybus, Hermann-Joachim", "club": "BS 1DDC", "team": "BS 1DDC / H MAZO", "pts": 35.0, "rd": 4, "avg": 8.75},
+            {"rank": 49, "name": "Frieters, Guido", "club": "SU MOBU", "team": "SU MOBU / M DDUL", "pts": 33.0, "rd": 16, "avg": 2.06},
+            {"rank": 50, "name": "Hegewald, Jörg", "club": "SU MOBU", "team": "SU MOBU / M DDUL", "pts": 31.0, "rd": 22, "avg": 1.41},
+            {"rank": 51, "name": "von Gierke, Christiane", "club": "B FUEX", "team": "B FUEX", "pts": 23.0, "rd": 4, "avg": 5.75},
+            {"rank": 51, "name": "Kümmet, Hans-Jürgen", "club": "CE LLE", "team": "W KD / CE LLE", "pts": 23.0, "rd": 3, "avg": 7.67},
+            {"rank": 53, "name": "Hennecke, Sabine", "club": "NOM BAZ", "team": "NOM BAZ", "pts": 22.0, "rd": 10, "avg": 2.2},
+            {"rank": 54, "name": "Buchhalla, Katharina", "club": "CE LLE", "team": "W KD / CE LLE", "pts": 20.0, "rd": 7, "avg": 2.86},
+            {"rank": 55, "name": "Schiller, Harald", "club": "B FUEX", "team": "B FUEX", "pts": 17.0, "rd": 24, "avg": 0.71},
+            {"rank": 56, "name": "Mahnert, Klaus-Thomas", "club": "DA JA80", "team": "DA JA80 / MH FUKS", "pts": 16.0, "rd": 20, "avg": 0.8},
+            {"rank": 57, "name": "Mussenbrock, Josef", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": 10.0, "rd": 10, "avg": 1.0},
+            {"rank": 58, "name": "Schelm, Denis", "club": "NOM BAZ", "team": "NOM BAZ", "pts": 7.0, "rd": 4, "avg": 1.75},
+            {"rank": 59, "name": "Schreiber, Klaus", "club": "W KD", "team": "W KD / CE LLE", "pts": 5.0, "rd": 16, "avg": 0.31},
+            {"rank": 60, "name": "Bath, Ines", "club": "B FUEX", "team": "B FUEX / LG LÜLÜ", "pts": 4.0, "rd": 14, "avg": 0.29},
+            {"rank": 61, "name": "Mathesie, Andrea", "club": "CE LLE", "team": "W KD / CE LLE", "pts": 2.0, "rd": 8, "avg": 0.25},
+            {"rank": 62, "name": "L'hoest, Sandra", "club": "MZ DR", "team": "MZ DR", "pts": -3.0, "rd": 13, "avg": -0.23},
+            {"rank": 63, "name": "Angermann, Terrance", "club": "MZ DR", "team": "MZ DR", "pts": -4.0, "rd": 14, "avg": -0.29},
+            {"rank": 64, "name": "Zeimer, Claudia", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -5.0, "rd": 6, "avg": -0.83},
+            {"rank": 65, "name": "Scholten, Markus", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -9.0, "rd": 18, "avg": -0.5},
+            {"rank": 65, "name": "Kömpf, Stefan", "club": "DA JA80", "team": "DA JA80 / MH FUKS", "pts": -9.0, "rd": 20, "avg": -0.45},
+            {"rank": 67, "name": "Krist, Elke", "club": "DA JA80", "team": "DA JA80 / MH FUKS", "pts": -10.0, "rd": 4, "avg": -2.5},
+            {"rank": 67, "name": "Magerstedt, Stefan", "club": "UN O", "team": "UN O / MZ DR", "pts": -10.0, "rd": 14, "avg": -0.71},
+            {"rank": 69, "name": "Maaß, Eckhard", "club": "M DDUL", "team": "SU MOBU / M DDUL", "pts": -19.0, "rd": 11, "avg": -1.73},
+            {"rank": 70, "name": "Unland, Stefanie", "club": "H MAZO", "team": "BS 1DDC / H MAZO", "pts": -20.0, "rd": 14, "avg": -1.43},
+            {"rank": 70, "name": "Schröer, Meik", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -20.0, "rd": 4, "avg": -5.0},
+            {"rank": 72, "name": "Magerstedt, Jennifer", "club": "UN O", "team": "UN O / MZ DR", "pts": -21.0, "rd": 20, "avg": -1.05},
+            {"rank": 73, "name": "Weber, Marcus", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": -23.0, "rd": 12, "avg": -1.92},
+            {"rank": 74, "name": "Baaken, Hermann", "club": "MO K92", "team": "MO K92 / MS DCM", "pts": -26.0, "rd": 26, "avg": -1.0},
+            {"rank": 75, "name": "Eickenbusch, Sebastian", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -27.0, "rd": 3, "avg": -9.0},
+            {"rank": 76, "name": "Wodsak, Johannes", "club": "M WB", "team": "M WB", "pts": -30.0, "rd": 19, "avg": -1.58},
+            {"rank": 77, "name": "Tews, Martina", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -34.0, "rd": 4, "avg": -8.5},
+            {"rank": 78, "name": "Röhn, Norbert", "club": "NOM BAZ", "team": "NOM BAZ", "pts": -41.0, "rd": 1, "avg": -41.0},
+            {"rank": 78, "name": "Schierbaum, Ralf", "club": "CE LLE", "team": "W KD / CE LLE", "pts": -41.0, "rd": 1, "avg": -41.0},
+            {"rank": 80, "name": "Wallutis, Ralf", "club": "MO K92", "team": "MO K92 / MS DCM", "pts": -44.0, "rd": 10, "avg": -4.4},
+            {"rank": 81, "name": "Ruben, Olaf", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -45.0, "rd": 2, "avg": -22.5},
+            {"rank": 82, "name": "Lauterbach, Frank", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": -46.0, "rd": 20, "avg": -2.3},
+            {"rank": 82, "name": "Fritz, Andreas", "club": "M DDUL", "team": "F GUDE / M DDUL", "pts": -46.0, "rd": 12, "avg": -3.83},
+            {"rank": 84, "name": "Storm, Fabienne", "club": "H MAZO", "team": "BS 1DDC / H MAZO", "pts": -47.0, "rd": 1, "avg": -47.0},
+            {"rank": 85, "name": "Pohlenz, Holger", "club": "F GUDE", "team": "F GUDE / M DDUL", "pts": -48.0, "rd": 6, "avg": -8.0},
+            {"rank": 86, "name": "Hendricks, Andreas", "club": "M WB", "team": "M WB", "pts": -49.0, "rd": 20, "avg": -2.45},
+            {"rank": 87, "name": "Graf, Daro", "club": "B FUEX", "team": "B FUEX", "pts": -57.0, "rd": 18, "avg": -3.17},
+            {"rank": 88, "name": "Casalino, Raffaela", "club": "M WB", "team": "M WB", "pts": -58.0, "rd": 13, "avg": -4.46},
+            {"rank": 88, "name": "Radke, Norbert", "club": "BS 1DDC", "team": "BS 1DDC / H MAZO", "pts": -58.0, "rd": 16, "avg": -3.62},
+            {"rank": 88, "name": "Kraft, Akim", "club": "W KD", "team": "W KD / CE LLE", "pts": -58.0, "rd": 11, "avg": -5.27},
+            {"rank": 91, "name": "Schwarz, Julia", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -61.0, "rd": 4, "avg": -15.25},
+            {"rank": 92, "name": "Ingenhorst, Susanne", "club": "LG LÜLÜ", "team": "B FUEX / LG LÜLÜ", "pts": -67.0, "rd": 14, "avg": -4.79},
+            {"rank": 92, "name": "Zeitzmann, Tilo", "club": "OL 1ODC", "team": "HB EBDC / OL 1ODC", "pts": -67.0, "rd": 14, "avg": -4.79},
+            {"rank": 94, "name": "Elter, Kai", "club": "B FUEX", "team": "B FUEX / LG LÜLÜ", "pts": -68.0, "rd": 18, "avg": -3.78},
+            {"rank": 95, "name": "Bergmann, Conrad", "club": "MO K92", "team": "MO K92 / MS DCM", "pts": -89.0, "rd": 10, "avg": -8.9},
+            {"rank": 96, "name": "Bertram, Kai", "club": "DA JA80", "team": "DA JA80 / MH FUKS", "pts": -90.0, "rd": 24, "avg": -3.75},
+            {"rank": 97, "name": "Bergemann, Ingo", "club": "BS 1DDC", "team": "BS 1DDC / H MAZO", "pts": -96.0, "rd": 18, "avg": -5.33},
+            {"rank": 98, "name": "Storm, Diana", "club": "H MAZO", "team": "BS 1DDC / H MAZO", "pts": -104.0, "rd": 22, "avg": -4.73},
+            {"rank": 99, "name": "Gemünd, Stefan", "club": "H MAZO", "team": "H MAZO", "pts": -112.0, "rd": 24, "avg": -4.67},
+            {"rank": 100, "name": "Engelhart, Thorsten", "club": "MZ DR", "team": "MZ DR", "pts": -119.0, "rd": 16, "avg": -7.44},
+            {"rank": 101, "name": "Mahlow, Christian", "club": "B FUEX", "team": "B FUEX", "pts": -121.0, "rd": 8, "avg": -15.12},
+            {"rank": 102, "name": "Willmann, Thomas", "club": "MO K92", "team": "MO K92 / MS DCM", "pts": -122.0, "rd": 26, "avg": -4.69},
+            {"rank": 103, "name": "Ferfers, Rolf", "club": "F GUDE", "team": "F GUDE / M DDUL", "pts": -123.0, "rd": 24, "avg": -5.12},
+            {"rank": 104, "name": "Becker, Mike", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": -126.0, "rd": 8, "avg": -15.75},
+            {"rank": 105, "name": "Erfurth, Thorsten", "club": "B FUEX", "team": "B FUEX", "pts": -128.0, "rd": 20, "avg": -6.4},
+            {"rank": 106, "name": "Alpermann, Holger", "club": "B FUEX", "team": "B FUEX", "pts": -136.0, "rd": 30, "avg": -4.53},
+            {"rank": 107, "name": "Matheus, Christian", "club": "B FUEX", "team": "B FUEX / LG LÜLÜ", "pts": -139.0, "rd": 24, "avg": -5.79},
+            {"rank": 108, "name": "Effen, Günter", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": -146.0, "rd": 24, "avg": -6.08},
+            {"rank": 108, "name": "Ternes, Jochen", "club": "MZ DR", "team": "MZ DR", "pts": -146.0, "rd": 8, "avg": -18.25},
+            {"rank": 110, "name": "Besier, Thomas", "club": "MZ DR", "team": "MZ DR", "pts": -147.0, "rd": 22, "avg": -6.68},
+            {"rank": 111, "name": "Knebel, Carsten", "club": "M DDUL", "team": "F GUDE / M DDUL", "pts": -148.0, "rd": 18, "avg": -8.22},
+            {"rank": 112, "name": "Waber, Ute", "club": "MZ DR", "team": "UN O / MZ DR", "pts": -157.0, "rd": 12, "avg": -13.08},
+            {"rank": 113, "name": "Quecke, Jasper", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -166.0, "rd": 18, "avg": -9.22},
+            {"rank": 114, "name": "Weber, Harald", "club": "UN O", "team": "UN O / MZ DR", "pts": -168.0, "rd": 6, "avg": -28.0},
+            {"rank": 115, "name": "Nieder, Olaf", "club": "NOM BAZ", "team": "NOM BAZ", "pts": -184.0, "rd": 26, "avg": -7.08},
+            {"rank": 116, "name": "Moczygemba, Sibylle", "club": "MZ DR", "team": "UN O / MZ DR", "pts": -192.0, "rd": 12, "avg": -16.0},
+            {"rank": 117, "name": "Schmidt, Petra", "club": "MZ DR", "team": "MZ DR", "pts": -195.0, "rd": 10, "avg": -19.5},
+            {"rank": 118, "name": "Günther, Markus", "club": "MO K92", "team": "MO K92 / MS DCM", "pts": -205.0, "rd": 18, "avg": -11.39},
+            {"rank": 119, "name": "Dauth, Benjamin", "club": "B FUEX", "team": "B FUEX / LG LÜLÜ", "pts": -221.0, "rd": 12, "avg": -18.42},
+            {"rank": 120, "name": "Müller, Andreas", "club": "H MAZO", "team": "H MAZO", "pts": -249.0, "rd": 24, "avg": -10.38},
+            {"rank": 121, "name": "Schützendorf, Jürgen", "club": "MO K92", "team": "MO K92 / MS DCM", "pts": -271.0, "rd": 20, "avg": -13.55},
+            {"rank": 122, "name": "von Campe, Martin", "club": "H MAZO", "team": "H MAZO", "pts": -277.0, "rd": 24, "avg": -11.54},
+            {"rank": 123, "name": "Faulwetter, Silke", "club": "OL 1ODC", "team": "HB EBDC / OL 1ODC", "pts": -294.0, "rd": 16, "avg": -18.38},
+            {"rank": 124, "name": "Kenntner, Eva", "club": "M DDUL", "team": "F GUDE / M DDUL", "pts": -351.0, "rd": 21, "avg": -16.71}
+        ];
+
+        const SINGLE_DATA_2025 = [
+            {"rank": 1, "name": "Schützendorf, Jürgen", "club": "MO K92", "team": "MO K92", "pts": 404.0, "rd": 39, "avg": 10.36},
+            {"rank": 2, "name": "Jöns, Daniel", "club": "BOT DKC", "team": "BOT DKC", "pts": 383.0, "rd": 33, "avg": 11.61},
+            {"rank": 3, "name": "Buchhalla, Katharina", "club": "CE LLE", "team": "W KD / CE LLE", "pts": 371.0, "rd": 32, "avg": 11.59},
+            {"rank": 4, "name": "Ferfers, Rolf", "club": "F GUDE", "team": "F GUDE / MZ DR", "pts": 361.0, "rd": 40, "avg": 9.03},
+            {"rank": 5, "name": "Schreiber, Klaus", "club": "NOM BAZ", "team": "NOM BAZ I", "pts": 344.0, "rd": 39, "avg": 8.82},
+            {"rank": 6, "name": "Lauterbach, Frank", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": 338.0, "rd": 36, "avg": 9.39},
+            {"rank": 7, "name": "Helmchen, Albert", "club": "M DDUL", "team": "M DDUL / SU MOBU", "pts": 283.0, "rd": 32, "avg": 8.84},
+            {"rank": 8, "name": "Lechner, Stefan", "club": "NOM BAZ", "team": "NOM BAZ I", "pts": 273.0, "rd": 40, "avg": 6.83},
+            {"rank": 9, "name": "Vonrüden, Andreas", "club": "W KD", "team": "W KD / CE LLE", "pts": 261.0, "rd": 38, "avg": 6.87},
+            {"rank": 10, "name": "Bolik, Christian", "club": "BOT DKC", "team": "BOT DKC", "pts": 250.0, "rd": 25, "avg": 10.0},
+            {"rank": 11, "name": "Schmitz, Elmar", "club": "SU MOBU", "team": "M DDUL / SU MOBU", "pts": 236.0, "rd": 36, "avg": 6.56},
+            {"rank": 12, "name": "L'hoest, Wilko", "club": "DA JA80", "team": "DA JA80 / MH FUKS", "pts": 206.0, "rd": 20, "avg": 10.3},
+            {"rank": 13, "name": "de Kok, Michael", "club": "BOT DKC", "team": "BOT DKC", "pts": 195.0, "rd": 36, "avg": 5.42},
+            {"rank": 14, "name": "Marx, Tim", "club": "MZ DR", "team": "MZ DR", "pts": 191.0, "rd": 30, "avg": 6.37},
+            {"rank": 15, "name": "Laun, Bodo", "club": "W KD", "team": "W KD / CE LLE", "pts": 166.0, "rd": 32, "avg": 5.19},
+            {"rank": 16, "name": "Matheus, Christian", "club": "B FUEX", "team": "B FUEX", "pts": 149.0, "rd": 32, "avg": 4.66},
+            {"rank": 17, "name": "Löffelholz, Mario", "club": "CE LLE", "team": "W KD / CE LLE", "pts": 149.0, "rd": 23, "avg": 6.48},
+            {"rank": 18, "name": "Kannenberg, Leif", "club": "BS CBDF", "team": "BS 1DDC / BS CBDF", "pts": 146.0, "rd": 24, "avg": 6.08},
+            {"rank": 19, "name": "Angermann, Terrance", "club": "MZ DR", "team": "MZ DR", "pts": 138.0, "rd": 16, "avg": 8.62},
+            {"rank": 20, "name": "Unland, Stefanie", "club": "H MAZO", "team": "H MAZO", "pts": 130.0, "rd": 33, "avg": 3.94},
+            {"rank": 21, "name": "van der Wehr, Dirk", "club": "B FUEX", "team": "B FUEX", "pts": 128.0, "rd": 37, "avg": 3.46},
+            {"rank": 22, "name": "Koppelin, Markus", "club": "MZ DR", "team": "F GUDE / MZ DR", "pts": 115.0, "rd": 26, "avg": 4.42},
+            {"rank": 23, "name": "Kömpf, Stefan", "club": "DA JA80", "team": "DA JA80 / MH FUKS", "pts": 112.0, "rd": 16, "avg": 7.0},
+            {"rank": 24, "name": "Mahnert, Thomas", "club": "DA JA80", "team": "DA JA80 / MH FUKS", "pts": 108.0, "rd": 38, "avg": 2.84},
+            {"rank": 25, "name": "Dauth, Benjamin", "club": "B FUEX", "team": "B FUEX", "pts": 105.0, "rd": 29, "avg": 3.62},
+            {"rank": 26, "name": "Schütt, André", "club": "NOM BAZ", "team": "NOM BAZ II", "pts": 99.0, "rd": 20, "avg": 4.95},
+            {"rank": 27, "name": "Günther, Markus", "club": "MO K92", "team": "MO K92", "pts": 93.0, "rd": 28, "avg": 3.32},
+            {"rank": 28, "name": "Hennecke, Sabine", "club": "NOM BAZ", "team": "NOM BAZ I", "pts": 88.0, "rd": 22, "avg": 4.0},
+            {"rank": 29, "name": "Gonsberg, Jörg", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": 73.0, "rd": 20, "avg": 3.65},
+            {"rank": 30, "name": "Schewe, Philipp", "club": "GÖ TTER", "team": "GÖ TTER", "pts": 71.0, "rd": 26, "avg": 2.73},
+            {"rank": 31, "name": "Faulwetter, Silke", "club": "OL 1ODC", "team": "HB EBDC / OL 1ODC", "pts": 68.0, "rd": 24, "avg": 2.83},
+            {"rank": 32, "name": "Widderich, Nils", "club": "GÖ TTER", "team": "GÖ TTER", "pts": 66.0, "rd": 20, "avg": 3.3},
+            {"rank": 33, "name": "Gompf, Hans-Peter", "club": "DA JA80", "team": "DA JA80 / MH FUKS", "pts": 61.0, "rd": 2, "avg": 30.5},
+            {"rank": 34, "name": "Kümmet, Hans-Jürgen", "club": "CE LLE", "team": "W KD / CE LLE", "pts": 59.0, "rd": 4, "avg": 14.75},
+            {"rank": 35, "name": "Crulci, Anette", "club": "BN FURH", "team": "UN O / BN FURH", "pts": 54.0, "rd": 8, "avg": 6.75},
+            {"rank": 36, "name": "Heinecke, Daniel", "club": "MZ DR", "team": "MZ DR", "pts": 53.0, "rd": 27, "avg": 1.96},
+            {"rank": 37, "name": "Seidler, Frank", "club": "BOT DKC", "team": "BOT DKC", "pts": 53.0, "rd": 11, "avg": 4.82},
+            {"rank": 38, "name": "Besier, Thomas", "club": "MZ DR", "team": "MZ DR", "pts": 50.0, "rd": 12, "avg": 4.17},
+            {"rank": 39, "name": "Schössow, Paul", "club": "F GUDE", "team": "F GUDE / MZ DR", "pts": 49.0, "rd": 8, "avg": 6.12},
+            {"rank": 40, "name": "Hilse, Sabine", "club": "NOM BAZ", "team": "NOM BAZ II", "pts": 43.0, "rd": 33, "avg": 1.3},
+            {"rank": 41, "name": "Mathesie, Andrea", "club": "CE LLE", "team": "W KD / CE LLE", "pts": 41.0, "rd": 8, "avg": 5.12},
+            {"rank": 42, "name": "Stopka, Dominik", "club": "BOT DKC", "team": "BOT DKC", "pts": 39.0, "rd": 20, "avg": 1.95},
+            {"rank": 43, "name": "Bressler, Dominik", "club": "B FUEX", "team": "B FUEX", "pts": 38.0, "rd": 4, "avg": 9.5},
+            {"rank": 44, "name": "Bergmann, Conrad", "club": "MO K92", "team": "MO K92", "pts": 36.0, "rd": 22, "avg": 1.64},
+            {"rank": 45, "name": "Godglück, Fabian", "club": "CE LLE", "team": "W KD / CE LLE", "pts": 31.0, "rd": 6, "avg": 5.17},
+            {"rank": 46, "name": "Dittrich, Simon", "club": "H MAZO", "team": "H MAZO", "pts": 26.0, "rd": 40, "avg": 0.65},
+            {"rank": 47, "name": "Lühert, Kerstin", "club": "H MAZO", "team": "H MAZO", "pts": 24.0, "rd": 4, "avg": 6.0},
+            {"rank": 48, "name": "Fritsch, Felix", "club": "NOM BAZ", "team": "NOM BAZ I", "pts": 14.0, "rd": 30, "avg": 0.47},
+            {"rank": 49, "name": "Frieters, Guido", "club": "SU MOBU", "team": "M DDUL / SU MOBU", "pts": 13.0, "rd": 32, "avg": 0.41},
+            {"rank": 50, "name": "Bath, Ines", "club": "B FUEX", "team": "B FUEX", "pts": 8.0, "rd": 19, "avg": 0.42},
+            {"rank": 51, "name": "Graf, Daro", "club": "B FUEX", "team": "B FUEX", "pts": 7.0, "rd": 8, "avg": 0.88},
+            {"rank": 52, "name": "Dröge, Timo", "club": "NOM BAZ", "team": "NOM BAZ I", "pts": 5.0, "rd": 29, "avg": 0.17},
+            {"rank": 53, "name": "Zeimer, Claudia", "club": "GÖ TTER", "team": "GÖ TTER", "pts": 3.0, "rd": 7, "avg": 0.43},
+            {"rank": 54, "name": "Mussenbrock, Josef", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": 1.0, "rd": 6, "avg": 0.17},
+            {"rank": 55, "name": "Krybus, Hermann-Joachim", "club": "BS 1DDC", "team": "BS 1DDC / BS CBDF", "pts": -1.0, "rd": 8, "avg": -0.12},
+            {"rank": 56, "name": "Schierbaum, Ralf", "club": "CE LLE", "team": "W KD / CE LLE", "pts": -2.0, "rd": 1, "avg": -2.0},
+            {"rank": 57, "name": "Quecke, Jasper", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -5.0, "rd": 20, "avg": -0.25},
+            {"rank": 58, "name": "Goll, Karlheinz", "club": "DA JA80", "team": "DA JA80 / MH FUKS", "pts": -6.0, "rd": 8, "avg": -0.75},
+            {"rank": 59, "name": "Stüwe, Sebastian", "club": "M DDUL", "team": "M DDUL / SU MOBU", "pts": -6.0, "rd": 2, "avg": -3.0},
+            {"rank": 60, "name": "Engelhart, Thorsten", "club": "MZ DR", "team": "MZ DR", "pts": -10.0, "rd": 12, "avg": -0.83},
+            {"rank": 61, "name": "Krist, Elke", "club": "DA JA80", "team": "DA JA80 / MH FUKS", "pts": -13.0, "rd": 2, "avg": -6.5},
+            {"rank": 62, "name": "Weber, Dirk", "club": "BS 1DDC", "team": "BS 1DDC / BS CBDF", "pts": -16.0, "rd": 16, "avg": -1.0},
+            {"rank": 63, "name": "Pohlenz, Holger", "club": "F GUDE", "team": "F GUDE / MZ DR", "pts": -22.0, "rd": 20, "avg": -1.1},
+            {"rank": 64, "name": "Barczewski, Sylke", "club": "UN O", "team": "UN O / BN FURH", "pts": -26.0, "rd": 36, "avg": -0.72},
+            {"rank": 65, "name": "Magerstedt, Jennifer", "club": "UN O", "team": "UN O / BN FURH", "pts": -26.0, "rd": 40, "avg": -0.65},
+            {"rank": 66, "name": "Gehrmann, Roland", "club": "HRO ED", "team": "HRO ED / LG LÜLÜ", "pts": -26.0, "rd": 8, "avg": -3.25},
+            {"rank": 67, "name": "Schelm, Denis", "club": "NOM BAZ", "team": "NOM BAZ II", "pts": -27.0, "rd": 4, "avg": -6.75},
+            {"rank": 68, "name": "Weber, Harald", "club": "UN O", "team": "UN O / BN FURH", "pts": -29.0, "rd": 2, "avg": -14.5},
+            {"rank": 69, "name": "Hantschel, Sascha", "club": "BOT DKC", "team": "BOT DKC", "pts": -30.0, "rd": 31, "avg": -0.97},
+            {"rank": 70, "name": "Bertram, Kai", "club": "DA JA80", "team": "DA JA80 / MH FUKS", "pts": -35.0, "rd": 8, "avg": -4.38},
+            {"rank": 71, "name": "Grix, Rainer", "club": "F GUDE", "team": "F GUDE / MZ DR", "pts": -36.0, "rd": 12, "avg": -3.0},
+            {"rank": 72, "name": "Hegewald, Birte", "club": "SU MOBU", "team": "M DDUL / SU MOBU", "pts": -37.0, "rd": 24, "avg": -1.54},
+            {"rank": 73, "name": "Gensch, Stefan", "club": "HRO ED", "team": "HRO ED / LG LÜLÜ", "pts": -39.0, "rd": 8, "avg": -4.88},
+            {"rank": 74, "name": "von der Warth, Katja", "club": "MH FUKS", "team": "DA JA80 / MH FUKS", "pts": -42.0, "rd": 14, "avg": -3.0},
+            {"rank": 75, "name": "Ruben, Olaf", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -42.0, "rd": 3, "avg": -14.0},
+            {"rank": 76, "name": "L'hoest, Sandra", "club": "MZ DR", "team": "MZ DR", "pts": -43.0, "rd": 18, "avg": -2.39},
+            {"rank": 77, "name": "Wichmann, Dieter", "club": "DA JA80", "team": "DA JA80 / MH FUKS", "pts": -47.0, "rd": 3, "avg": -15.67},
+            {"rank": 78, "name": "Weber, Marcus", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": -52.0, "rd": 16, "avg": -3.25},
+            {"rank": 79, "name": "Hegewald, Jörg", "club": "SU MOBU", "team": "M DDUL / SU MOBU", "pts": -56.0, "rd": 22, "avg": -2.55},
+            {"rank": 80, "name": "Schröer, Meik", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -57.0, "rd": 4, "avg": -14.25},
+            {"rank": 81, "name": "Tews, Martina", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -58.0, "rd": 22, "avg": -2.64},
+            {"rank": 82, "name": "Wallutis, Ralf", "club": "MO K92", "team": "MO K92", "pts": -60.0, "rd": 23, "avg": -2.61},
+            {"rank": 83, "name": "Maaß, Eckhard", "club": "M DDUL", "team": "M DDUL / SU MOBU", "pts": -62.0, "rd": 12, "avg": -5.17},
+            {"rank": 84, "name": "Radau, Jörn", "club": "F GUDE", "team": "F GUDE / MZ DR", "pts": -64.0, "rd": 2, "avg": -32.0},
+            {"rank": 85, "name": "Hartel, Michael", "club": "HRO ED", "team": "HRO ED / LG LÜLÜ", "pts": -72.0, "rd": 32, "avg": -2.25},
+            {"rank": 86, "name": "Storm, Dirk", "club": "H MAZO", "team": "H MAZO", "pts": -74.0, "rd": 4, "avg": -18.5},
+            {"rank": 87, "name": "Ingenhorst, Susanne", "club": "LG LÜLÜ", "team": "HRO ED / LG LÜLÜ", "pts": -74.0, "rd": 24, "avg": -3.08},
+            {"rank": 88, "name": "Vonrüden, Verena", "club": "W KD", "team": "W KD / CE LLE", "pts": -80.0, "rd": 10, "avg": -8.0},
+            {"rank": 89, "name": "Genull, Oliver", "club": "NOM BAZ", "team": "NOM BAZ II", "pts": -81.0, "rd": 24, "avg": -3.38},
+            {"rank": 90, "name": "Heilmann, Dirk", "club": "LG LÜLÜ", "team": "HRO ED / LG LÜLÜ", "pts": -82.0, "rd": 2, "avg": -41.0},
+            {"rank": 91, "name": "Hoops, Lars-Peter", "club": "NOM BAZ", "team": "NOM BAZ II", "pts": -82.0, "rd": 22, "avg": -3.73},
+            {"rank": 92, "name": "Bergemann, Ingo", "club": "BS 1DDC", "team": "BS 1DDC / BS CBDF", "pts": -85.0, "rd": 40, "avg": -2.12},
+            {"rank": 93, "name": "Hein, Jörn", "club": "UN O", "team": "UN O / BN FURH", "pts": -85.0, "rd": 34, "avg": -2.5},
+            {"rank": 94, "name": "Kurzer, Karsten", "club": "H MAZO", "team": "H MAZO", "pts": -86.0, "rd": 8, "avg": -10.75},
+            {"rank": 95, "name": "Schmidt, Ralf", "club": "BOT DKC", "team": "BOT DKC", "pts": -94.0, "rd": 4, "avg": -23.5},
+            {"rank": 96, "name": "Heinrich, Klaus", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -96.0, "rd": 13, "avg": -7.38},
+            {"rank": 97, "name": "Baaken, Hermann", "club": "MO K92", "team": "MO K92", "pts": -97.0, "rd": 10, "avg": -9.7},
+            {"rank": 98, "name": "von der Warth, Guido", "club": "MH FUKS", "team": "DA JA80 / MH FUKS", "pts": -104.0, "rd": 17, "avg": -6.12},
+            {"rank": 99, "name": "Becker, Mike", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": -106.0, "rd": 10, "avg": -10.6},
+            {"rank": 100, "name": "Schwarz, Julia", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -112.0, "rd": 8, "avg": -14.0},
+            {"rank": 101, "name": "Müller, Andreas", "club": "H MAZO", "team": "H MAZO", "pts": -112.0, "rd": 35, "avg": -3.2},
+            {"rank": 102, "name": "Kubicki, Milan", "club": "B FUEX", "team": "B FUEX", "pts": -112.0, "rd": 8, "avg": -14.0},
+            {"rank": 103, "name": "Nieder, Olaf", "club": "NOM BAZ", "team": "NOM BAZ II", "pts": -115.0, "rd": 32, "avg": -3.59},
+            {"rank": 104, "name": "Eickenbusch, Sebastian", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -117.0, "rd": 7, "avg": -16.71},
+            {"rank": 105, "name": "Ternes, Jochen", "club": "MZ DR", "team": "MZ DR", "pts": -118.0, "rd": 19, "avg": -6.21},
+            {"rank": 106, "name": "Radke, Norbert", "club": "BS 1DDC", "team": "BS 1DDC / BS CBDF", "pts": -122.0, "rd": 32, "avg": -3.81},
+            {"rank": 107, "name": "Reinhard, Marcus", "club": "LG LÜLÜ", "team": "HRO ED / LG LÜLÜ", "pts": -122.0, "rd": 14, "avg": -8.71},
+            {"rank": 108, "name": "Schmidt, Petra", "club": "MZ DR", "team": "MZ DR", "pts": -125.0, "rd": 26, "avg": -4.81},
+            {"rank": 109, "name": "Scholten, Markus", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -125.0, "rd": 30, "avg": -4.17},
+            {"rank": 110, "name": "Berger, Thomas", "club": "BS CBDF", "team": "BS 1DDC / BS CBDF", "pts": -126.0, "rd": 40, "avg": -3.15},
+            {"rank": 111, "name": "Flieger, Helmut", "club": "W KD", "team": "W KD / CE LLE", "pts": -130.0, "rd": 6, "avg": -21.67},
+            {"rank": 112, "name": "Magerstedt, Stefan", "club": "UN O", "team": "UN O / BN FURH", "pts": -130.0, "rd": 32, "avg": -4.06},
+            {"rank": 113, "name": "Willmann, Thomas", "club": "MO K92", "team": "MO K92", "pts": -137.0, "rd": 38, "avg": -3.61},
+            {"rank": 114, "name": "Schultz, Rico", "club": "B FUEX", "team": "B FUEX", "pts": -138.0, "rd": 6, "avg": -23.0},
+            {"rank": 115, "name": "Krüger, Jürgen", "club": "BN FURH", "team": "UN O / BN FURH", "pts": -141.0, "rd": 8, "avg": -17.62},
+            {"rank": 116, "name": "Mietzner, Elmar", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": -148.0, "rd": 16, "avg": -9.25},
+            {"rank": 117, "name": "Kobs, Corvin", "club": "DA JA80", "team": "DA JA80 / MH FUKS", "pts": -169.0, "rd": 32, "avg": -5.28},
+            {"rank": 118, "name": "Katona, Arne", "club": "MZ DR", "team": "F GUDE / MZ DR", "pts": -179.0, "rd": 30, "avg": -5.97},
+            {"rank": 119, "name": "Thoms, Frank", "club": "HRO ED", "team": "HRO ED / LG LÜLÜ", "pts": -225.0, "rd": 36, "avg": -6.25},
+            {"rank": 120, "name": "von Campe, Martin", "club": "H MAZO", "team": "H MAZO", "pts": -265.0, "rd": 36, "avg": -7.36},
+            {"rank": 121, "name": "Wulff, Steffen", "club": "HRO ED", "team": "HRO ED / LG LÜLÜ", "pts": -278.0, "rd": 36, "avg": -7.72},
+            {"rank": 122, "name": "Effen, Günter", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": -291.0, "rd": 32, "avg": -9.09},
+            {"rank": 123, "name": "Elter, Kai", "club": "B FUEX", "team": "B FUEX", "pts": -301.0, "rd": 17, "avg": -17.71},
+            {"rank": 124, "name": "Leonhardt, Ulf", "club": "MZ DR", "team": "F GUDE / MZ DR", "pts": -307.0, "rd": 22, "avg": -13.95},
+            {"rank": 125, "name": "Röhn, Norbert", "club": "NOM BAZ", "team": "NOM BAZ II", "pts": -390.0, "rd": 25, "avg": -15.6}
+        ];
+
+        const SINGLE_DATA_2024 = [
+            {"rank": 1, "name": "Lechner, Stefan", "club": "NOM BAZ", "team": "NOM BAZ I", "pts": 602.0, "rd": 40, "avg": 15.05},
+            {"rank": 2, "name": "Weber, Dirk", "club": "BS 1DDC", "team": "BS 1DDC / BS CBDF", "pts": 504.0, "rd": 38, "avg": 13.26},
+            {"rank": 3, "name": "Dittrich, Simon", "club": "H MAZO", "team": "H MAZO", "pts": 401.0, "rd": 38, "avg": 10.55},
+            {"rank": 4, "name": "Löffelholz, Mario", "club": "CE LLE", "team": "W KD / CE LLE", "pts": 395.0, "rd": 30, "avg": 13.17},
+            {"rank": 5, "name": "Helmchen, Albert", "club": "M DDUL", "team": "SU MOBU / M DDUL", "pts": 322.0, "rd": 38, "avg": 8.47},
+            {"rank": 6, "name": "Hantschel, Sascha", "club": "BOT DKC", "team": "BOT DKC", "pts": 292.0, "rd": 37, "avg": 7.89},
+            {"rank": 7, "name": "Stopka, Dominik", "club": "BOT DKC", "team": "BOT DKC", "pts": 268.0, "rd": 32, "avg": 8.38},
+            {"rank": 8, "name": "Hoops, Lars-Peter", "club": "NOM BAZ", "team": "NOM BAZ II", "pts": 266.0, "rd": 38, "avg": 7.0},
+            {"rank": 9, "name": "L'hoest, Wilko", "club": "DA JA80", "team": "DA JA80", "pts": 265.0, "rd": 32, "avg": 8.28},
+            {"rank": 10, "name": "Kannenberg, Leif", "club": "BS CBDF", "team": "BS 1DDC / BS CBDF", "pts": 264.0, "rd": 16, "avg": 16.5},
+            {"rank": 11, "name": "Katona, Arne", "club": "MZ DR", "team": "F GUDE / MZ DR", "pts": 232.0, "rd": 30, "avg": 7.73},
+            {"rank": 12, "name": "Weßels, Guido", "club": "MS DCM", "team": "MS DCM / BN FURH", "pts": 230.0, "rd": 34, "avg": 6.76},
+            {"rank": 13, "name": "Jöns, Daniel", "club": "BOT DKC", "team": "BOT DKC", "pts": 216.0, "rd": 36, "avg": 6.0},
+            {"rank": 14, "name": "Fritsch, Felix", "club": "NOM BAZ", "team": "NOM BAZ I", "pts": 215.0, "rd": 35, "avg": 6.14},
+            {"rank": 15, "name": "Fotteler, Raphael", "club": "MZ DR", "team": "MZ DR", "pts": 209.0, "rd": 35, "avg": 5.97},
+            {"rank": 16, "name": "Baaken, Hermann", "club": "MO K92", "team": "MO K92", "pts": 206.0, "rd": 23, "avg": 8.96},
+            {"rank": 17, "name": "Mahnert, Klaus-Thomas", "club": "DA JA80", "team": "DA JA80", "pts": 196.0, "rd": 40, "avg": 4.9},
+            {"rank": 18, "name": "Heinrich, Klaus", "club": "GÖ TTER", "team": "GÖ TTER", "pts": 166.0, "rd": 13, "avg": 12.77},
+            {"rank": 19, "name": "Gompf, Hans-Peter", "club": "DA JA80", "team": "DA JA80", "pts": 147.0, "rd": 12, "avg": 12.25},
+            {"rank": 20, "name": "Schützendorf, Jürgen", "club": "MO K92", "team": "MO K92", "pts": 140.0, "rd": 23, "avg": 6.09},
+            {"rank": 21, "name": "Laun, Bodo", "club": "W KD", "team": "W KD / CE LLE", "pts": 128.0, "rd": 29, "avg": 4.41},
+            {"rank": 22, "name": "Dinslaken, Melissa", "club": "M DDUL", "team": "M DDUL", "pts": 123.0, "rd": 16, "avg": 7.69},
+            {"rank": 23, "name": "Hegewald, Birte", "club": "SU MOBU", "team": "SU MOBU / M DDUL", "pts": 121.0, "rd": 32, "avg": 3.78},
+            {"rank": 24, "name": "de Kok, Michael", "club": "BOT DKC", "team": "BOT DKC", "pts": 116.0, "rd": 30, "avg": 3.87},
+            {"rank": 25, "name": "Lehmann, Leif", "club": "GÖ TTER", "team": "GÖ TTER", "pts": 106.0, "rd": 14, "avg": 7.57},
+            {"rank": 26, "name": "Widderich, Nils", "club": "GÖ TTER", "team": "GÖ TTER", "pts": 98.0, "rd": 28, "avg": 3.5},
+            {"rank": 27, "name": "Quecke, Jasper", "club": "MS DCM", "team": "MS DCM / BN FURH", "pts": 85.0, "rd": 34, "avg": 2.5},
+            {"rank": 28, "name": "Schewe, Philipp", "club": "GÖ TTER", "team": "GÖ TTER", "pts": 73.0, "rd": 22, "avg": 3.32},
+            {"rank": 29, "name": "Schmitz, Elmar", "club": "SU MOBU", "team": "SU MOBU / M DDUL", "pts": 65.0, "rd": 40, "avg": 1.62},
+            {"rank": 30, "name": "Mussenbrock, Josef", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": 64.0, "rd": 6, "avg": 10.67},
+            {"rank": 31, "name": "Wiedemann, Nicon", "club": "B FUEX", "team": "B FUEX", "pts": 64.0, "rd": 6, "avg": 10.67},
+            {"rank": 32, "name": "Angermann, Terrance", "club": "MZ DR", "team": "MZ DR", "pts": 61.0, "rd": 8, "avg": 7.62},
+            {"rank": 33, "name": "Schreiber, Klaus", "club": "NOM BAZ", "team": "NOM BAZ I", "pts": 58.0, "rd": 36, "avg": 1.61},
+            {"rank": 34, "name": "Schmidt, Petra", "club": "MZ DR", "team": "MZ DR", "pts": 57.0, "rd": 17, "avg": 3.35},
+            {"rank": 35, "name": "van der Wehr, Dirk", "club": "B FUEX", "team": "B FUEX", "pts": 53.0, "rd": 28, "avg": 1.89},
+            {"rank": 36, "name": "Godglück, Fabian", "club": "CE LLE", "team": "W KD / CE LLE", "pts": 52.0, "rd": 7, "avg": 7.43},
+            {"rank": 37, "name": "Besier, Thomas", "club": "MZ DR", "team": "MZ DR", "pts": 50.0, "rd": 12, "avg": 4.17},
+            {"rank": 38, "name": "Mietzner, Elmar", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": 49.0, "rd": 22, "avg": 2.23},
+            {"rank": 39, "name": "Goll, Karlheinz", "club": "DA JA80", "team": "DA JA80", "pts": 44.0, "rd": 8, "avg": 5.5},
+            {"rank": 40, "name": "Schröer, Meik", "club": "GÖ TTER", "team": "GÖ TTER", "pts": 42.0, "rd": 10, "avg": 4.2},
+            {"rank": 41, "name": "Kümmet, Hans-Jürgen", "club": "CE LLE", "team": "W KD / CE LLE", "pts": 40.0, "rd": 6, "avg": 6.67},
+            {"rank": 42, "name": "Schmidt, Ralf", "club": "BOT DKC", "team": "BOT DKC", "pts": 38.0, "rd": 8, "avg": 4.75},
+            {"rank": 43, "name": "Lauterbach, Frank", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": 35.0, "rd": 15, "avg": 2.33},
+            {"rank": 44, "name": "Ruben, Olaf", "club": "GÖ TTER", "team": "GÖ TTER", "pts": 33.0, "rd": 4, "avg": 8.25},
+            {"rank": 45, "name": "Dröge, Timo", "club": "NOM BAZ", "team": "NOM BAZ I", "pts": 32.0, "rd": 30, "avg": 1.07},
+            {"rank": 46, "name": "Kurzer, Karsten", "club": "H MAZO", "team": "H MAZO", "pts": 28.0, "rd": 3, "avg": 9.33},
+            {"rank": 47, "name": "Schelm, Denis", "club": "NOM BAZ", "team": "NOM BAZ II", "pts": 27.0, "rd": 5, "avg": 5.4},
+            {"rank": 48, "name": "Krist, Elke", "club": "DA JA80", "team": "DA JA80", "pts": 27.0, "rd": 8, "avg": 3.38},
+            {"rank": 49, "name": "Schiller, Harald", "club": "B FUEX", "team": "B FUEX", "pts": 24.0, "rd": 6, "avg": 4.0},
+            {"rank": 50, "name": "Liedtke, Richard", "club": "BS CBDF", "team": "BS 1DDC / BS CBDF", "pts": 18.0, "rd": 36, "avg": 0.5},
+            {"rank": 51, "name": "Bolik, Christian", "club": "BOT DKC", "team": "BOT DKC", "pts": 15.0, "rd": 17, "avg": 0.88},
+            {"rank": 52, "name": "Hennecke, Sabine", "club": "NOM BAZ", "team": "NOM BAZ I", "pts": 14.0, "rd": 8, "avg": 1.75},
+            {"rank": 53, "name": "Tews, Martina", "club": "MS DCM", "team": "MS DCM / BN FURH", "pts": 14.0, "rd": 22, "avg": 0.64},
+            {"rank": 54, "name": "Matheus, Christian", "club": "B FUEX", "team": "B FUEX", "pts": 9.0, "rd": 30, "avg": 0.3},
+            {"rank": 55, "name": "Vonrüden, Verena", "club": "W KD", "team": "W KD / CE LLE", "pts": 7.0, "rd": 19, "avg": 0.37},
+            {"rank": 56, "name": "Dauth, Benjamin", "club": "B FUEX", "team": "B FUEX", "pts": 2.0, "rd": 20, "avg": 0.1},
+            {"rank": 57, "name": "Huesmann, Tim", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -4.0, "rd": 9, "avg": -0.44},
+            {"rank": 58, "name": "Kobbe, Angela", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": -7.0, "rd": 4, "avg": -1.75},
+            {"rank": 59, "name": "Scholten, Markus", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -9.0, "rd": 35, "avg": -0.26},
+            {"rank": 60, "name": "Crulci, Anette", "club": "MS DCM", "team": "MS DCM / BN FURH", "pts": -11.0, "rd": 6, "avg": -1.83},
+            {"rank": 61, "name": "Thomsen, Johannes", "club": "H MAZO", "team": "H MAZO", "pts": -15.0, "rd": 8, "avg": -1.88},
+            {"rank": 62, "name": "Wichmann, Dieter", "club": "DA JA80", "team": "DA JA80", "pts": -19.0, "rd": 2, "avg": -9.5},
+            {"rank": 63, "name": "Marx, Tim", "club": "MZ DR", "team": "MZ DR", "pts": -22.0, "rd": 5, "avg": -4.4},
+            {"rank": 64, "name": "Elter, Kai", "club": "B FUEX", "team": "B FUEX", "pts": -23.0, "rd": 14, "avg": -1.64},
+            {"rank": 65, "name": "Buchhalla, Katharina", "club": "CE LLE", "team": "W KD / CE LLE", "pts": -23.0, "rd": 30, "avg": -0.77},
+            {"rank": 66, "name": "Genull, Oliver", "club": "NOM BAZ", "team": "NOM BAZ II", "pts": -26.0, "rd": 24, "avg": -1.08},
+            {"rank": 67, "name": "Burger, Wolfgang", "club": "MS DCM", "team": "MS DCM / BN FURH", "pts": -26.0, "rd": 2, "avg": -13.0},
+            {"rank": 68, "name": "Fischer, Rüdiger", "club": "DA JA80", "team": "DA JA80", "pts": -28.0, "rd": 2, "avg": -14.0},
+            {"rank": 69, "name": "Flieger, Helmut", "club": "W KD", "team": "W KD / CE LLE", "pts": -31.0, "rd": 9, "avg": -3.44},
+            {"rank": 70, "name": "Vonrüden, Andreas", "club": "W KD", "team": "W KD / CE LLE", "pts": -38.0, "rd": 30, "avg": -1.27},
+            {"rank": 71, "name": "von Gierke, Christiane", "club": "B FUEX", "team": "B FUEX", "pts": -40.0, "rd": 4, "avg": -10.0},
+            {"rank": 72, "name": "Berger, Thomas", "club": "BS CBDF", "team": "BS 1DDC / BS CBDF", "pts": -41.0, "rd": 32, "avg": -1.28},
+            {"rank": 73, "name": "Maaß, Eckhard", "club": "M DDUL", "team": "SU MOBU / M DDUL", "pts": -41.0, "rd": 10, "avg": -4.1},
+            {"rank": 74, "name": "Ferfers, Rolf", "club": "F GUDE", "team": "F GUDE / MZ DR", "pts": -43.0, "rd": 28, "avg": -1.54},
+            {"rank": 75, "name": "Radke, Norbert", "club": "BS 1DDC", "team": "BS 1DDC / BS CBDF", "pts": -44.0, "rd": 8, "avg": -5.5},
+            {"rank": 76, "name": "Schwarz, Julia", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -45.0, "rd": 6, "avg": -7.5},
+            {"rank": 77, "name": "Bath, Ines", "club": "B FUEX", "team": "B FUEX", "pts": -46.0, "rd": 12, "avg": -3.83},
+            {"rank": 78, "name": "Engelhart, Thorsten", "club": "MZ DR", "team": "MZ DR", "pts": -50.0, "rd": 24, "avg": -2.08},
+            {"rank": 79, "name": "Kern, Daniel", "club": "M DDUL", "team": "M DDUL", "pts": -52.0, "rd": 38, "avg": -1.37},
+            {"rank": 80, "name": "Willmann, Thomas", "club": "MO K92", "team": "MO K92", "pts": -57.0, "rd": 38, "avg": -1.5},
+            {"rank": 81, "name": "Schössow, Paul", "club": "F GUDE", "team": "F GUDE / MZ DR", "pts": -57.0, "rd": 18, "avg": -3.17},
+            {"rank": 82, "name": "Frost, Dieter", "club": "MO K92", "team": "MO K92", "pts": -59.0, "rd": 4, "avg": -14.75},
+            {"rank": 83, "name": "Kenntner, Eva", "club": "M DDUL", "team": "M DDUL", "pts": -59.0, "rd": 40, "avg": -1.48},
+            {"rank": 84, "name": "Franz, Sebastian", "club": "MS DCM", "team": "MS DCM / BN FURH", "pts": -61.0, "rd": 14, "avg": -4.36},
+            {"rank": 85, "name": "Storm , Dirk", "club": "H MAZO", "team": "H MAZO", "pts": -67.0, "rd": 17, "avg": -3.94},
+            {"rank": 86, "name": "Berkau, Eva", "club": "NOM BAZ", "team": "NOM BAZ I", "pts": -72.0, "rd": 11, "avg": -6.55},
+            {"rank": 87, "name": "von Campe, Martin", "club": "H MAZO", "team": "H MAZO", "pts": -73.0, "rd": 10, "avg": -7.3},
+            {"rank": 88, "name": "Koppelin, Markus", "club": "MZ DR", "team": "F GUDE / MZ DR", "pts": -74.0, "rd": 32, "avg": -2.31},
+            {"rank": 89, "name": "Bergmann, Conrad", "club": "MO K92", "team": "MO K92", "pts": -94.0, "rd": 21, "avg": -4.48},
+            {"rank": 90, "name": "Bernhardt, Jochen", "club": "MZ DR", "team": "F GUDE / MZ DR", "pts": -102.0, "rd": 10, "avg": -10.2},
+            {"rank": 91, "name": "Kömpf, Stefan", "club": "DA JA80", "team": "DA JA80", "pts": -116.0, "rd": 32, "avg": -3.62},
+            {"rank": 92, "name": "von der Warth, Katja", "club": "DA JA80", "team": "DA JA80", "pts": -121.0, "rd": 24, "avg": -5.04},
+            {"rank": 93, "name": "Müller, Andreas", "club": "H MAZO", "team": "H MAZO", "pts": -128.0, "rd": 38, "avg": -3.37},
+            {"rank": 94, "name": "Kraft, Akim", "club": "MZ DR", "team": "MZ DR", "pts": -147.0, "rd": 30, "avg": -4.9},
+            {"rank": 95, "name": "Bressler, Dominik", "club": "B FUEX", "team": "B FUEX", "pts": -153.0, "rd": 26, "avg": -5.88},
+            {"rank": 96, "name": "Weber, Marcus", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": -157.0, "rd": 24, "avg": -6.54},
+            {"rank": 97, "name": "Eickenbusch, Sebastian", "club": "GÖ TTER", "team": "GÖ TTER", "pts": -158.0, "rd": 19, "avg": -8.32},
+            {"rank": 98, "name": "Kubicki, Milan", "club": "B FUEX", "team": "B FUEX", "pts": -159.0, "rd": 14, "avg": -11.36},
+            {"rank": 99, "name": "Hilse, Sabine", "club": "NOM BAZ", "team": "NOM BAZ II", "pts": -160.0, "rd": 35, "avg": -4.57},
+            {"rank": 100, "name": "Bergemann, Ingo", "club": "BS 1DDC", "team": "BS 1DDC / BS CBDF", "pts": -162.0, "rd": 30, "avg": -5.4},
+            {"rank": 101, "name": "Wallutis, Ralf", "club": "MO K92", "team": "MO K92", "pts": -165.0, "rd": 29, "avg": -5.69},
+            {"rank": 102, "name": "Gaspar, Markus", "club": "MS DCM", "team": "MS DCM / BN FURH", "pts": -167.0, "rd": 33, "avg": -5.06},
+            {"rank": 103, "name": "Fritz, Andreas", "club": "M DDUL", "team": "M DDUL", "pts": -172.0, "rd": 22, "avg": -7.82},
+            {"rank": 104, "name": "Storm, Diana", "club": "H MAZO", "team": "H MAZO", "pts": -176.0, "rd": 18, "avg": -9.78},
+            {"rank": 105, "name": "Ternes, Hans-Joachim", "club": "MZ DR", "team": "F GUDE / MZ DR", "pts": -178.0, "rd": 18, "avg": -9.89},
+            {"rank": 106, "name": "Faulwetter, Silke", "club": "OL 1ODC", "team": "HB EBDC / OL 1ODC", "pts": -180.0, "rd": 29, "avg": -6.21},
+            {"rank": 107, "name": "Wolter, Friederike", "club": "MS DCM", "team": "MS DCM / BN FURH", "pts": -189.0, "rd": 15, "avg": -12.6},
+            {"rank": 108, "name": "Günther, Markus", "club": "MO K92", "team": "MO K92", "pts": -197.0, "rd": 22, "avg": -8.95},
+            {"rank": 109, "name": "Hegewald, Jörg", "club": "SU MOBU", "team": "SU MOBU / M DDUL", "pts": -199.0, "rd": 28, "avg": -7.11},
+            {"rank": 110, "name": "L'hoest, Sandra", "club": "MZ DR", "team": "MZ DR", "pts": -212.0, "rd": 17, "avg": -12.47},
+            {"rank": 111, "name": "Heinecke, Daniel", "club": "MZ DR", "team": "MZ DR", "pts": -213.0, "rd": 12, "avg": -17.75},
+            {"rank": 112, "name": "Schmoll, Marion", "club": "M DDUL", "team": "M DDUL", "pts": -225.0, "rd": 21, "avg": -10.71},
+            {"rank": 113, "name": "Nieder, Olaf", "club": "NOM BAZ", "team": "NOM BAZ II", "pts": -240.0, "rd": 24, "avg": -10.0},
+            {"rank": 114, "name": "Gonsberg, Jörg", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": -253.0, "rd": 22, "avg": -11.5},
+            {"rank": 115, "name": "Stüwe, Sebastian", "club": "M DDUL", "team": "SU MOBU / M DDUL", "pts": -255.0, "rd": 12, "avg": -21.25},
+            {"rank": 116, "name": "Effen, Günter", "club": "HB EBDC", "team": "HB EBDC / OL 1ODC", "pts": -258.0, "rd": 38, "avg": -6.79},
+            {"rank": 117, "name": "Unland, Stefanie", "club": "H MAZO", "team": "H MAZO", "pts": -272.0, "rd": 28, "avg": -9.71},
+            {"rank": 118, "name": "Leonhardt, Ulf", "club": "MZ DR", "team": "F GUDE / MZ DR", "pts": -278.0, "rd": 24, "avg": -11.58},
+            {"rank": 119, "name": "Weidmann, Claudia", "club": "M DDUL", "team": "M DDUL", "pts": -292.0, "rd": 23, "avg": -12.7},
+            {"rank": 120, "name": "Röhn, Norbert", "club": "NOM BAZ", "team": "NOM BAZ II", "pts": -367.0, "rd": 34, "avg": -10.79}
+        ];
+
+        let allTeamsSet = new Set();
+        Object.values(SCHEDULE_TEMPLATE).forEach(st => {
+            Object.values(st.groups).forEach(g => {
+                g.forEach(t => allTeamsSet.add(t));
+            });
+        });
+        const TEAMS = Array.from(allTeamsSet);
+
+        let appData = { results: {} };
+        let currentAdminMatchday = 1;
+
+        async function initApp() {
+            await loadData();
+            renderTable();
+            renderScheduleView();
+            renderAdminView();
+            populateSingleTable('2026', SINGLE_DATA_2026);
+            populateSingleTable('2025', SINGLE_DATA_2025);
+            populateSingleTable('2024', SINGLE_DATA_2024);
+        }
+
+        async function loadData() {
+            try {
+                let { data, error } = await _supabase.from('doko_ergebnisse').select('*');
+                if (error) throw error;
+
+                appData.results = {};
+                for (let st = 1; st <= 5; st++) {
+                    appData.results[st] = { 1: [], 2: [], 3: [], 4: [] };
+                    for (let g = 1; g <= 4; g++) {
+                        appData.results[st][g] = SCHEDULE_TEMPLATE[st].groups[g].map(t => ({ team: t, sp: null, wp: null, host: false }));
+                    }
+                }
+
+                if (data && data.length > 0) {
+                    data.forEach(row => {
+                        if (!appData.results[row.matchday]) appData.results[row.matchday] = {};
+                        if (!appData.results[row.matchday][row.group_num]) appData.results[row.matchday][row.group_num] = [];
+                        
+                        let groupList = appData.results[row.matchday][row.group_num];
+                        let existing = groupList.find(x => x.team === row.team_name);
+                        if (existing) {
+                            existing.sp = row.sp;
+                            existing.wp = row.wp;
+                            existing.host = row.is_host;
+                        } else {
+                            groupList.push({ team: row.team_name, sp: row.sp, wp: row.wp, host: row.is_host });
+                        }
+                    });
+                }
+            } catch (e) {
+                console.error("Fehler beim Laden von Supabase:", e);
+            }
+        }
+
+        async function saveAdminData() {
+            try {
+                let rowsToUpsert = [];
+
+                for (let gNum = 1; gNum <= 4; gNum++) {
+                    let groupTeams = SCHEDULE_TEMPLATE[currentAdminMatchday].groups[gNum];
+                    groupTeams.forEach(teamName => {
+                        let spInput = document.querySelector(`.admin-sp-input[data-st="${currentAdminMatchday}"][data-group="${gNum}"][data-sp-team="${teamName}"]`);
+                        let wpInput = document.querySelector(`.admin-wp-input[data-st="${currentAdminMatchday}"][data-group="${gNum}"][data-wp-team="${teamName}"]`);
+                        let hostCheck = document.querySelector(`.admin-host-checkbox[data-st="${currentAdminMatchday}"][data-group="${gNum}"][data-host-team="${teamName}"]`);
+
+                        let spVal = spInput && spInput.value.trim() !== "" ? parseFloat(spInput.value) : null;
+                        let wpVal = wpInput && wpInput.value.trim() !== "" ? parseInt(wpInput.value) : 0;
+                        let isHost = hostCheck ? hostCheck.checked : false;
+
+                        rowsToUpsert.push({
+                            matchday: currentAdminMatchday,
+                            group_num: gNum,
+                            team_name: teamName,
+                            sp: spVal,
+                            wp: wpVal,
+                            is_host: isHost
+                        });
+                    });
+                }
+
+                let { error } = await _supabase.from('doko_ergebnisse').upsert(rowsToUpsert, { onConflict: 'matchday,group_num,team_name' });
+                if (error) throw error;
+
+                await loadData();
+                renderTable();
+                renderScheduleView();
+                showNotification(`${SCHEDULE_TEMPLATE[currentAdminMatchday].title} erfolgreich in Supabase gespeichert!`, "success");
+                switchTab('table');
+            } catch (e) {
+                console.error("Fehler beim Speichern:", e);
+                showNotification("Fehler beim Speichern in Supabase!", "error");
+            }
+        }
+
+        function requestAdminAccess() {
+            let pwd = prompt("Bitte Admin-Passwort eingeben:");
+            if (pwd === "doko2026") {
+                switchTab('admin');
+            } else if (pwd !== null) {
+                alert("Falsches Passwort!");
+            }
+        }
+
+        function switchTab(tabId) {
+            ['table', 'schedule', 'single-2026', 'single-2025', 'single-2024', 'admin'].forEach(t => {
+                const el = document.getElementById(`tab-${t}`);
+                if (el) el.classList.add('hidden');
+            });
+
+            ['table', 'schedule', 'single-2026', 'single-2025', 'single-2024'].forEach(t => {
+                const btn = document.getElementById(`nav-${t}`);
+                if (btn) {
+                    btn.className = "px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 text-slate-400 hover:text-white hover:bg-slate-800 shrink-0";
+                }
+            });
+
+            const filterWrapper = document.getElementById('schedule-filter-wrapper');
+            if (filterWrapper) {
+                if (tabId === 'schedule') {
+                    filterWrapper.classList.remove('hidden');
+                } else {
+                    filterWrapper.classList.add('hidden');
+                }
+            }
+
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            
+            if (tabId !== 'admin') {
+                document.getElementById(`nav-${tabId}`).className = "px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2 bg-brand-600 text-white shadow-md shadow-brand-600/30 shrink-0";
+            }
+
+            if (tabId === 'admin') {
+                renderAdminView();
+            }
+        }
+
+        function showNotification(text, type = 'success') {
+            const notif = document.getElementById('notification');
+            const notifText = document.getElementById('notification-text');
+            notifText.innerText = text;
+            notif.className = `mb-6 p-4 rounded-xl border text-sm flex items-center justify-between transition-all duration-300 ${
+                type === 'success' ? 'bg-emerald-950/80 border-emerald-500/50 text-emerald-200' : 'bg-red-950/80 border-red-500/50 text-red-200'
+            }`;
+            notif.classList.remove('hidden');
+            setTimeout(() => { notif.classList.add('hidden'); }, 4000);
+        }
+
+        function hideNotification() { document.getElementById('notification').classList.add('hidden'); }
+
+        function calculateStandings() {
+            let teamStats = {};
+            TEAMS.forEach(team => {
+                teamStats[team] = { name: team, totalWertP: 0, totalSpielP: 0, matchdays: {} };
+                for(let st = 1; st <= 5; st++) {
+                    teamStats[team].matchdays[st] = { wp: 0, sp: null, rank: '-', group: '-' };
+                }
+            });
+
+            for (let st = 1; st <= 5; st++) {
+                const groups = SCHEDULE_TEMPLATE[st].groups;
+                const matchdayResults = appData.results[st] || {};
+
+                for (let gNum = 1; gNum <= 4; gNum++) {
+                    const groupTeams = groups[gNum];
+                    const groupRes = matchdayResults[gNum] || [];
+
+                    let groupEntries = groupTeams.map(t => {
+                        let found = groupRes.find(item => item.team === t);
+                        return { 
+                            team: t, 
+                            sp: (found && found.sp !== undefined && found.sp !== null && found.sp !== "") ? parseFloat(found.sp) : null,
+                            wp: (found && found.wp !== undefined && found.wp !== null && found.wp !== "") ? parseInt(found.wp) : null
+                        };
+                    });
+
+                    groupEntries.sort((a, b) => {
+                        let valA = a.sp !== null ? a.sp : -99999;
+                        let valB = b.sp !== null ? b.sp : -99999;
+                        return valB - valA;
+                    });
+
+                    groupEntries.forEach((entry, index) => {
+                        if (entry.sp !== null) {
+                            let rank = index + 1;
+                            let wp = (entry.wp !== null && !isNaN(entry.wp)) ? entry.wp : (5 - rank);
+                            teamStats[entry.team].matchdays[st] = { wp: wp, sp: entry.sp, rank: rank, group: gNum };
+                            teamStats[entry.team].totalWertP += wp;
+                            teamStats[entry.team].totalSpielP += entry.sp;
+                        }
+                    });
+                }
+            }
+
+            let standingsArray = Object.values(teamStats);
+            standingsArray.sort((a, b) => {
+                if (b.totalWertP !== a.totalWertP) return b.totalWertP - a.totalWertP;
+                return b.totalSpielP - a.totalSpielP;
+            });
+            return standingsArray;
+        }
+
+        function getWpBadgeClass(wp) {
+            if (wp === 4) return 'bg-emerald-500 text-slate-950 font-bold';
+            if (wp === 3) return 'bg-lime-400 text-slate-950 font-bold';
+            if (wp === 2) return 'bg-amber-400 text-slate-950 font-bold';
+            if (wp === 1) return 'bg-red-500 text-white font-bold';
+            return 'bg-slate-800 text-slate-400 font-bold';
+        }
+
+        function renderTable() {
+            const standings = calculateStandings();
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            standings.forEach((team, index) => {
+                let rank = index + 1;
+                let rowBgClass = '';
+                let rankBadge = 'bg-slate-800 text-slate-400';
+
+                if (rank === 1) {
+                    rowBgClass = 'bg-amber-500/10 hover:bg-amber-500/20';
+                    rankBadge = 'bg-amber-500/30 text-amber-300 border border-amber-500/50 font-bold shadow-sm shadow-amber-500/20';
+                } else if (rank === TEAMS.length) {
+                    rowBgClass = 'bg-red-500/10 hover:bg-red-500/20';
+                    rankBadge = 'bg-red-500/30 text-red-300 border border-red-500/50 font-bold';
+                } else if (rank === 2) { rankBadge = 'bg-slate-300/20 text-slate-300 border border-slate-400/30'; }
+                else if (rank === 3) { rankBadge = 'bg-amber-700/20 text-amber-600 border border-amber-700/30'; }
+
+                let spielPColor = team.totalSpielP > 0 ? 'text-emerald-400' : (team.totalSpielP < 0 ? 'text-red-400 font-bold' : 'text-slate-200');
+
+                let rowHtml = `
+                    <tr class="transition-colors ${rowBgClass}">
+                        <td class="py-3 px-3 text-center">
+                            <span class="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${rankBadge}">${rank}</span>
+                        </td>
+                        <td class="py-3 px-4 font-semibold text-white tracking-wide">
+                            <button onclick="openTeamModal('${team.name.replace(/'/g, "\\'")}')" class="hover:text-brand-400 hover:underline flex items-center gap-2 text-left">
+                                ${team.name} ${rank === 1 ? '👑' : ''}
+                            </button>
+                        </td>
+                        <td class="py-3 px-3 text-center font-bold text-brand-400 bg-brand-950/20 text-sm">${team.totalWertP.toFixed(0)}</td>
+                        <td class="py-3 px-3 text-center font-bold ${spielPColor} bg-slate-900/60 text-sm">
+                            ${team.totalSpielP > 0 ? '+' + team.totalSpielP : team.totalSpielP}
+                        </td>
+                `;
+
+                for (let st = 5; st >= 1; st--) {
+                    let md = team.matchdays[st];
+                    if (md.sp !== null) {
+                        let wpBadge = getWpBadgeClass(md.wp);
+                        let spColorClass = md.sp > 0 ? 'text-emerald-400' : (md.sp < 0 ? 'text-red-400 font-bold' : 'text-slate-200');
+
+                        rowHtml += `
+                            <td class="py-3 px-2 text-center border-l border-slate-800 text-xs">
+                                <div class="flex flex-col items-center gap-1">
+                                    <span class="px-2 py-0.5 rounded text-xs ${wpBadge}">${md.wp} WP</span>
+                                    <span class="${spColorClass} font-medium">${md.sp > 0 ? '+' + md.sp : md.sp} SP</span>
+                                </div>
+                            </td>
+                        `;
+                    } else {
+                        rowHtml += `<td class="py-3 px-2 text-center border-l border-slate-800 text-slate-600 text-xs">&ndash;</td>`;
+                    }
+                }
+                rowHtml += `</tr>`;
+                tbody.innerHTML += rowHtml;
+            });
+        }
+
+        function populateSingleTable(year, data) {
+            const tbody = document.querySelector(`#table-single-${year} tbody`);
+            tbody.innerHTML = '';
+            data.forEach(item => {
+                let rankBadge = item.rank === 1 ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold' :
+                                item.rank === 2 ? 'bg-slate-300/20 text-slate-300 border border-slate-400/30 font-bold' :
+                                item.rank === 3 ? 'bg-amber-700/20 text-amber-600 border border-amber-700/30 font-bold' : 'bg-slate-800 text-slate-400';
+
+                let ptsColor = item.pts > 0 ? 'text-brand-400' : (item.pts < 0 ? 'text-red-400 font-bold' : 'text-slate-200');
+                let avgColor = item.avg > 0 ? 'text-emerald-400' : (item.avg < 0 ? 'text-red-400 font-bold' : 'text-slate-200');
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-900/80 transition-colors row-item" data-search="${item.name.toLowerCase()} ${item.club.toLowerCase()} ${item.team.toLowerCase()}">
+                        <td class="py-3 px-3 text-center"><span class="inline-flex items-center justify-center w-6 h-6 rounded-full text-xs ${rankBadge}">${item.rank}</span></td>
+                        <td class="py-3 px-4 font-semibold text-white">${item.name}</td>
+                        <td class="py-3 px-4 text-slate-300">${item.club}</td>
+                        <td class="py-3 px-4 text-slate-400 text-xs">${item.team}</td>
+                        <td class="py-3 px-3 text-center font-bold ${ptsColor} bg-brand-950/20 text-sm">${item.pts > 0 ? '+' + item.pts : item.pts}</td>
+                        <td class="py-3 px-3 text-center text-slate-300">${item.rd}</td>
+                        <td class="py-3 px-3 text-center font-bold ${avgColor}">${item.avg > 0 ? '+' + item.avg.toFixed(2) : item.avg.toFixed(2)}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filterSingleTable(year) {
+            const query = document.getElementById(`search-${year}`).value.toLowerCase();
+            const rows = document.querySelectorAll(`#table-single-${year} tbody tr`);
+            rows.forEach(row => {
+                const text = row.getAttribute('data-search');
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        }
+
+        function openTeamModal(teamName) {
+            const standings = calculateStandings();
+            const team = standings.find(t => t.name === teamName);
+            if (!team) return;
+
+            document.getElementById('modal-team-name').innerText = team.name;
+            const modalBody = document.getElementById('modal-team-body');
+            modalBody.innerHTML = '';
+
+            for (let st = 1; st <= 5; st++) {
+                let md = team.matchdays[st];
+                let stInfo = SCHEDULE_TEMPLATE[st];
+                let spText = md.sp !== null ? (md.sp > 0 ? '+' + md.sp : md.sp) + ' SP' : 'offen';
+                let spColor = md.sp !== null ? (md.sp > 0 ? 'text-emerald-400' : (md.sp < 0 ? 'text-red-400 font-bold' : 'text-slate-200')) : 'text-slate-500';
+
+                modalBody.innerHTML += `
+                    <tr class="hover:bg-slate-800/40">
+                        <td class="py-2.5 px-3 font-semibold text-slate-200">${stInfo.title} <span class="text-[10px] text-slate-500 block">${stInfo.date}</span></td>
+                        <td class="py-2.5 px-3 text-center text-slate-300">Gruppe ${md.group}</td>
+                        <td class="py-2.5 px-3 text-center font-bold text-white">${md.rank !== '-' ? md.rank + '. Platz' : '-'}</td>
+                        <td class="py-2.5 px-3 text-center font-bold text-brand-400">${md.wp > 0 ? md.wp + ' WP' : '-'}</td>
+                        <td class="py-2.5 px-3 text-center font-bold ${spColor}">${spText}</td>
+                    </tr>
+                `;
+            }
+            document.getElementById('team-modal').classList.remove('hidden');
+        }
+
+        function closeTeamModal() { document.getElementById('team-modal').classList.add('hidden'); }
+
+        function renderScheduleView() {
+            const filterVal = document.getElementById('schedule-filter').value;
+            const container = document.getElementById('schedule-container');
+            container.innerHTML = '';
+
+            for (let st = 1; st <= 5; st++) {
+                if (filterVal !== 'all' && filterVal !== String(st)) continue;
+
+                let matchdayInfo = SCHEDULE_TEMPLATE[st];
+                let matchdayResults = appData.results[st] || {};
+
+                let stCard = `
+                    <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-lg">
+                        <div class="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-4 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                            <h3 class="font-bold text-white text-base sm:text-lg flex items-center gap-2">
+                                <i class="fa-solid fa-calendar text-brand-400"></i> ${matchdayInfo.title}
+                            </h3>
+                            <span class="text-xs bg-slate-800 text-slate-300 border border-slate-700 px-3 py-1 rounded-full font-medium">
+                                <i class="fa-regular fa-clock mr-1"></i> ${matchdayInfo.date}
+                            </span>
+                        </div>
+                        <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                `;
+
+                for (let gNum = 1; gNum <= 4; gNum++) {
+                    let groupTeamsTemplate = matchdayInfo.groups[gNum];
+                    let groupRes = matchdayResults[gNum] || [];
+
+                    let groupTeams = groupTeamsTemplate.map(t => {
+                        let found = groupRes.find(item => item.team === t);
+                        return { 
+                            name: t, 
+                            host: found ? !!found.host : false, 
+                            sp: (found && found.sp !== undefined && found.sp !== null && found.sp !== "") ? parseFloat(found.sp) : null,
+                            wp: (found && found.wp !== undefined && found.wp !== null && found.wp !== "") ? parseInt(found.wp) : null
+                        };
+                    });
+
+                    groupTeams.sort((a, b) => {
+                        let valA = a.sp !== null ? a.sp : -99999;
+                        let valB = b.sp !== null ? b.sp : -99999;
+                        return valB - valA;
+                    });
+
+                    stCard += `
+                        <div class="bg-slate-950/60 rounded-xl p-4 border border-slate-800/80 flex flex-col justify-between">
+                            <div>
+                                <div class="text-xs font-bold uppercase tracking-wider text-brand-400 mb-3 pb-2 border-b border-slate-800 flex items-center justify-between">
+                                    <span>Gruppe ${gNum}</span>
+                                    <span class="text-[10px] text-slate-500 font-normal">WP / SP</span>
+                                </div>
+                                <div class="space-y-2">
+                    `;
+
+                    groupTeams.forEach((item, idx) => {
+                        let rank = idx + 1;
+                        let wpEarned = item.sp !== null ? (item.wp !== null && !isNaN(item.wp) ? item.wp : (5 - rank)) : '-';
+                        let wpBadge = item.sp !== null ? getWpBadgeClass(wpEarned) : 'bg-slate-800 text-slate-500';
+                        let spDisplay = item.sp !== null ? (item.sp > 0 ? '+' + item.sp : item.sp) : 'offen';
+                        let spColor = item.sp !== null ? (item.sp > 0 ? 'text-emerald-400 font-semibold' : (item.sp < 0 ? 'text-red-400 font-bold' : 'text-slate-200')) : 'text-slate-500 italic';
+                        let hostClass = item.host ? 'bg-brand-950/40 border border-brand-500/40 text-brand-300 font-bold' : 'bg-slate-900/80 text-slate-200 border border-slate-800/50';
+
+                        stCard += `
+                            <div class="flex items-center justify-between text-xs p-2.5 rounded-lg ${hostClass}">
+                                <div class="flex items-center gap-2 truncate pr-2">
+                                    <span class="w-4 text-center font-bold text-slate-400">${rank}.</span>
+                                    <span class="truncate font-medium" title="${item.name}">${item.name} ${item.host ? '🏠' : ''}</span>
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0">
+                                    <span class="px-2 py-0.5 rounded text-[11px] ${wpBadge}">${wpEarned} WP</span>
+                                    <span class="w-12 text-right ${spColor}">${spDisplay}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    stCard += `</div></div></div>`;
+                }
+                stCard += `</div></div>`;
+                container.innerHTML += stCard;
+            }
+        }
+
+        function setAdminMatchday(st) { currentAdminMatchday = st; renderAdminView(); }
+
+        function renderAdminView() {
+            const btnContainer = document.getElementById('admin-matchday-buttons');
+            btnContainer.innerHTML = '';
+            for (let st = 1; st <= 5; st++) {
+                let isActive = currentAdminMatchday === st;
+                btnContainer.innerHTML += `
+                    <button onclick="setAdminMatchday(${st})" class="py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${
+                        isActive ? 'bg-brand-600 text-white shadow-lg shadow-brand-600/30' : 'bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white border border-slate-800'
+                    }">
+                        <i class="fa-solid fa-calendar-day"></i> ${SCHEDULE_TEMPLATE[st].title}
+                    </button>
+                `;
+            }
+
+            const groupsContainer = document.getElementById('admin-groups-container');
+            groupsContainer.innerHTML = '';
+
+            const matchdayInfo = SCHEDULE_TEMPLATE[currentAdminMatchday];
+            let matchdayResults = appData.results[currentAdminMatchday] || {};
+
+            for (let gNum = 1; gNum <= 4; gNum++) {
+                let groupTeams = matchdayInfo.groups[gNum];
+                let groupRes = matchdayResults[gNum] || [];
+
+                let groupCard = `
+                    <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-4 shadow-lg">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                            <h3 class="font-bold text-white text-sm uppercase tracking-wide flex items-center gap-2">
+                                <i class="fa-solid fa-layer-group text-brand-400"></i> Gruppe ${gNum}
+                            </h3>
+                            <span class="text-xs text-slate-400">Ausrichter (🏠) & Punkte eintragen</span>
+                        </div>
+                        <div class="space-y-3">
+                `;
+
+                groupTeams.forEach((teamName, tIdx) => {
+                    let found = groupRes.find(item => item.team === teamName);
+                    let spVal = (found && found.sp !== undefined && found.sp !== null) ? found.sp : '';
+                    let wpVal = (found && found.wp !== undefined && found.wp !== null) ? found.wp : (5 - (tIdx + 1));
+                    let isHost = found ? !!found.host : false;
+
+                    groupCard += `
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-950/60 p-3 rounded-xl border ${isHost ? 'border-brand-500/50 bg-brand-950/20' : 'border-slate-800/60'}">
+                            <div class="flex items-center gap-3 truncate">
+                                <span class="w-5 h-5 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center shrink-0">${tIdx + 1}</span>
+                                <span class="text-xs sm:text-sm font-semibold ${isHost ? 'text-brand-300 font-bold' : 'text-slate-200'} truncate" title="${teamName}">${teamName}</span>
+                            </div>
+                            <div class="flex items-center gap-2 shrink-0 justify-end flex-wrap">
+                                <label class="flex items-center gap-1 text-xs cursor-pointer text-slate-300 bg-slate-900 px-2.5 py-1.5 rounded-lg border border-slate-700 hover:border-brand-500">
+                                    <input type="checkbox" data-host-team="${teamName}" data-group="${gNum}" data-st="${currentAdminMatchday}" ${isHost ? 'checked' : ''} class="admin-host-checkbox accent-brand-500 w-4 h-4">
+                                    <span>Ausrichter 🏠</span>
+                                </label>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-[10px] text-slate-400">WP:</span>
+                                    <input type="number" step="1" data-wp-team="${teamName}" data-group="${gNum}" data-st="${currentAdminMatchday}" value="${wpVal}" placeholder="WP" class="admin-wp-input w-16 bg-slate-900 border border-slate-700 text-slate-100 px-2 py-1.5 rounded-lg text-xs text-center focus:outline-none focus:border-brand-500 font-bold">
+                                </div>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-[10px] text-slate-400">SP:</span>
+                                    <input type="number" step="any" data-sp-team="${teamName}" data-group="${gNum}" data-sp-team="${teamName}" value="${spVal}" placeholder="SP" class="admin-sp-input w-20 bg-slate-900 border border-slate-700 text-slate-100 px-2 py-1.5 rounded-lg text-xs text-right focus:outline-none focus:border-brand-500 font-bold">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                groupCard += `</div></div>`;
+                groupsContainer.innerHTML += groupCard;
+            }
+        }
+
+        window.onload = function() { initApp(); };
+    </script>
+</body>
+</html>
