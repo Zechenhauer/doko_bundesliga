@@ -50,9 +50,9 @@
     <!-- Main Container -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
 
-        <!-- GROSSE HAUPTÜBERSCHRIFT MIT DDV LOGO -->
+        <!-- GROSSE HAUPTÜBERSCHRIFT MIT LOGO -->
         <div class="flex flex-col items-center justify-center text-center space-y-3 py-2">
-            <img src="https://raw.githubusercontent.5net/Zechenhauer/doko_bundesliga/main/logo.png" alt="DDV Logo" class="h-16 sm:h-20 w-auto object-contain bg-white/5 p-2 rounded-2xl border border-slate-700/80 shadow-lg">
+            <img src="https://raw.githubusercontent.com/Zechenhauer/doko_bundesliga/main/logo.png" alt="DDV Logo" class="h-16 sm:h-20 w-auto object-contain bg-white/5 p-2 rounded-2xl border border-slate-700/80 shadow-lg" onerror="this.style.display='none'">
             <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center justify-center gap-2">
                 DoKo Bundesliga <span class="text-xs bg-brand-500/20 text-brand-400 border border-brand-500/30 px-2.5 py-1 rounded-full font-medium">Saison 2026</span>
             </h1>
@@ -91,11 +91,16 @@
             <div id="schedule-filter-wrapper" class="hidden sm:block">
                 <select id="schedule-filter" onchange="renderScheduleView()" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 focus:outline-none focus:border-brand-500">
                     <option value="all">Alle Spieltage anzeigen</option>
-                    <option value="1">Spieltag 1 + 2 (07.03.2026)</option>
-                    <option value="2">Spieltag 3 + 4 (18.04.2026)</option>
-                    <option value="3">Spieltag 5 + 6 (09.05.2026)</option>
-                    <option value="4">Spieltag 7 + 8 (10.10.2026)</option>
-                    <option value="5">Spieltag 9 + 10 (21.11.2026)</option>
+                    <option value="1">Spieltag 1 (07.03.2026)</option>
+                    <option value="2">Spieltag 2 (08.03.2026)</option>
+                    <option value="3">Spieltag 3 (18.04.2026)</option>
+                    <option value="4">Spieltag 4 (19.04.2026)</option>
+                    <option value="5">Spieltag 5 (09.05.2026)</option>
+                    <option value="6">Spieltag 6 (10.05.2026)</option>
+                    <option value="7">Spieltag 7 (10.10.2026)</option>
+                    <option value="8">Spieltag 8 (11.10.2026)</option>
+                    <option value="9">Spieltag 9 (21.11.2026)</option>
+                    <option value="10">Spieltag 10 (22.11.2026)</option>
                 </select>
             </div>
         </div>
@@ -111,11 +116,11 @@
                                 <th class="py-3 px-4 font-bold">Mannschaft</th>
                                 <th class="py-3 px-3 text-center font-bold bg-brand-950/40 text-brand-400">WertP</th>
                                 <th class="py-3 px-3 text-center font-bold bg-slate-800">SpielP</th>
-                                <th class="py-3 px-2 text-center border-l border-slate-700">Spieltag 9+10<br><span class="text-[9px] font-normal text-slate-400">WP / SP</span></th>
-                                <th class="py-3 px-2 text-center border-l border-slate-700">Spieltag 7+8<br><span class="text-[9px] font-normal text-slate-400">WP / SP</span></th>
-                                <th class="py-3 px-2 text-center border-l border-slate-700">Spieltag 5+6<br><span class="text-[9px] font-normal text-slate-400">WP / SP</span></th>
-                                <th class="py-3 px-2 text-center border-l border-slate-700">Spieltag 3+4<br><span class="text-[9px] font-normal text-slate-400">WP / SP</span></th>
-                                <th class="py-3 px-2 text-center border-l border-slate-700">Spieltag 1+2<br><span class="text-[9px] font-normal text-slate-400">WP / SP</span></th>
+                                <th class="py-3 px-2 text-center border-l border-slate-700">ST 9 & 10<br><span class="text-[9px] font-normal text-slate-400">WP / SP</span></th>
+                                <th class="py-3 px-2 text-center border-l border-slate-700">ST 7 & 8<br><span class="text-[9px] font-normal text-slate-400">WP / SP</span></th>
+                                <th class="py-3 px-2 text-center border-l border-slate-700">ST 5 & 6<br><span class="text-[9px] font-normal text-slate-400">WP / SP</span></th>
+                                <th class="py-3 px-2 text-center border-l border-slate-700">ST 3 & 4<br><span class="text-[9px] font-normal text-slate-400">WP / SP</span></th>
+                                <th class="py-3 px-2 text-center border-l border-slate-700">ST 1 & 2<br><span class="text-[9px] font-normal text-slate-400">WP / SP</span></th>
                             </tr>
                         </thead>
                         <tbody id="table-body" class="divide-y divide-slate-800/60 font-medium"></tbody>
@@ -133,7 +138,7 @@
         <section id="tab-single-2026" class="hidden space-y-6">
             <div class="bg-slate-900/80 rounded-2xl border border-slate-800 shadow-xl overflow-hidden backdrop-blur-sm">
                 <div class="p-4 border-b border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <h3 class="font-bold text-white text-base">Bundesliga-Einzelwertung 2026 (nach ST 8)</h3>
+                    <h3 class="font-bold text-white text-base">Bundesliga-Einzelwertung 2026</h3>
                     <input type="text" id="search-2026" onkeyup="filterSingleTable('2026')" placeholder="Spieler oder Verein suchen..." class="bg-slate-800 border border-slate-700 text-slate-100 text-xs rounded-xl px-3 py-2 w-full sm:w-64 focus:outline-none focus:border-brand-500">
                 </div>
                 <div class="overflow-x-auto">
@@ -214,7 +219,7 @@
                     <h2 class="text-xl font-bold text-white flex items-center gap-2">
                         <i class="fa-solid fa-pen-to-square text-brand-400"></i> Admin: Ergebnisse & Ausrichter pflegen
                     </h2>
-                    <p class="text-sm text-slate-400 mt-1">Trage hier Spielpunkte (SP) und Wertungspunkte (WP) ein.</p>
+                    <p class="text-sm text-slate-400 mt-1">Trage hier Spielpunkte (SP) und Wertungspunkte (WP) für die jeweiligen Einzeltage ein.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <button onclick="switchTab('table')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold border border-slate-700 transition">
@@ -223,6 +228,7 @@
                 </div>
             </div>
 
+            <!-- Auswahl der 10 Einzeltage im Admin-Bereich -->
             <div class="grid grid-cols-2 sm:grid-cols-5 gap-2" id="admin-matchday-buttons"></div>
             <div id="admin-groups-container" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
 
@@ -250,10 +256,10 @@
                     <p class="text-xs text-slate-400">Saisonverlauf aller Spieltage im Detail</p>
                 </div>
             </div>
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto max-h-96">
                 <table class="w-full text-left border-collapse text-xs">
                     <thead>
-                        <tr class="bg-slate-800/80 text-slate-300 uppercase tracking-wider text-[10px] border-b border-slate-700">
+                        <tr class="bg-slate-800/80 text-slate-300 uppercase tracking-wider text-[10px] border-b border-slate-700 sticky top-0">
                             <th class="py-2.5 px-3 font-bold">Spieltag</th>
                             <th class="py-2.5 px-3 text-center font-bold">Gruppe</th>
                             <th class="py-2.5 px-3 text-center font-bold">Platz</th>
@@ -284,57 +290,52 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_yXEueWILvAq-Vm2VfTuYyg_BIQeE1KK';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const SCHEDULE_TEMPLATE = {
-            1: {
-                title: "Spieltag 1 + 2",
-                date: "07.03.2026 + 08.03.2026",
-                groups: {
-                    1: ["SU MOBU / M DDUL", "F GUDE / M DDUL", "BOT DKC", "M WB"],
-                    2: ["GÖ TTER", "MZ DR", "UN O / MZ DR", "MO K92 / MS DCM"],
-                    3: ["H MAZO", "DA JA80 / MH FUKS", "BS 1DDC / H MAZO", "NOM BAZ"],
-                    4: ["W KD / CE LLE", "HB EBDC / OL 1ODC", "B FUEX", "B FUEX / LG LÜLÜ"]
-                }
+        // Gruppen-Zuordnungen für die 5 Doppel-Spieltage
+        const GROUPS_BY_PAIR = {
+            1: { // Spieltag 1 & 2
+                1: ["SU MOBU / M DDUL", "F GUDE / M DDUL", "BOT DKC", "M WB"],
+                2: ["GÖ TTER", "MZ DR", "UN O / MZ DR", "MO K92 / MS DCM"],
+                3: ["H MAZO", "DA JA80 / MH FUKS", "BS 1DDC / H MAZO", "NOM BAZ"],
+                4: ["W KD / CE LLE", "HB EBDC / OL 1ODC", "B FUEX", "B FUEX / LG LÜLÜ"]
             },
-            2: {
-                title: "Spieltag 3 + 4",
-                date: "18.04.2026 + 19.04.2026",
-                groups: {
-                    1: ["UN O / MZ DR", "F GUDE / M DDUL", "HB EBDC / OL 1ODC", "H MAZO"],
-                    2: ["BOT DKC", "MZ DR", "DA JA80 / MH FUKS", "W KD / CE LLE"],
-                    3: ["B FUEX", "SU MOBU / M DDUL", "MO K92 / MS DCM", "NOM BAZ"],
-                    4: ["BS 1DDC / H MAZO", "GÖ TTER", "M WB", "B FUEX / LG LÜLÜ"]
-                }
+            2: { // Spieltag 3 & 4
+                1: ["UN O / MZ DR", "F GUDE / M DDUL", "HB EBDC / OL 1ODC", "H MAZO"],
+                2: ["BOT DKC", "MZ DR", "DA JA80 / MH FUKS", "W KD / CE LLE"],
+                3: ["B FUEX", "SU MOBU / M DDUL", "MO K92 / MS DCM", "NOM BAZ"],
+                4: ["BS 1DDC / H MAZO", "GÖ TTER", "M WB", "B FUEX / LG LÜLÜ"]
             },
-            3: {
-                title: "Spieltag 5 + 6",
-                date: "09.05.2026 + 10.05.2026",
-                groups: {
-                    1: ["DA JA80 / MH FUKS", "F GUDE / M DDUL", "GÖ TTER", "B FUEX"],
-                    2: ["HB EBDC / OL 1ODC", "MZ DR", "SU MOBU / M DDUL", "BS 1DDC / H MAZO"],
-                    3: ["M WB", "UN O / MZ DR", "W KD / CE LLE", "NOM BAZ"],
-                    4: ["MO K92 / MS DCM", "BOT DKC", "H MAZO", "B FUEX / LG LÜLÜ"]
-                }
+            3: { // Spieltag 5 & 6
+                1: ["DA JA80 / MH FUKS", "F GUDE / M DDUL", "GÖ TTER", "B FUEX"],
+                2: ["HB EBDC / OL 1ODC", "MZ DR", "SU MOBU / M DDUL", "BS 1DDC / H MAZO"],
+                3: ["M WB", "UN O / MZ DR", "W KD / CE LLE", "NOM BAZ"],
+                4: ["MO K92 / MS DCM", "BOT DKC", "H MAZO", "B FUEX / LG LÜLÜ"]
             },
-            4: {
-                title: "Spieltag 7 + 8",
-                date: "10.10.2026 + 11.10.2026",
-                groups: {
-                    1: ["B FUEX / LG LÜLÜ", "UN O / MZ DR", "DA JA80 / MH FUKS", "SU MOBU / M DDUL"],
-                    2: ["NOM BAZ", "GÖ TTER", "HB EBDC / OL 1ODC", "BOT DKC"],
-                    3: ["MZ DR", "B FUEX", "H MAZO", "M WB"],
-                    4: ["F GUDE / M DDUL", "MO K92 / MS DCM", "W KD / CE LLE", "BS 1DDC / H MAZO"]
-                }
+            4: { // Spieltag 7 & 8
+                1: ["B FUEX / LG LÜLÜ", "UN O / MZ DR", "DA JA80 / MH FUKS", "SU MOBU / M DDUL"],
+                2: ["NOM BAZ", "GÖ TTER", "HB EBDC / OL 1ODC", "BOT DKC"],
+                3: ["MZ DR", "B FUEX", "H MAZO", "M WB"],
+                4: ["F GUDE / M DDUL", "MO K92 / MS DCM", "W KD / CE LLE", "BS 1DDC / H MAZO"]
             },
-            5: {
-                title: "Spieltag 9 + 10",
-                date: "21.11.2026 + 22.11.2026",
-                groups: {
-                    1: ["B FUEX / LG LÜLÜ", "NOM BAZ", "MZ DR", "F GUDE / M DDUL"],
-                    2: ["DA JA80 / MH FUKS", "HB EBDC / OL 1ODC", "M WB", "MO K92 / MS DCM"],
-                    3: ["UN O / MZ DR", "BOT DKC", "B FUEX", "BS 1DDC / H MAZO"],
-                    4: ["SU MOBU / M DDUL", "GÖ TTER", "H MAZO", "W KD / CE LLE"]
-                }
+            5: { // Spieltag 9 & 10
+                1: ["B FUEX / LG LÜLÜ", "NOM BAZ", "MZ DR", "F GUDE / M DDUL"],
+                2: ["DA JA80 / MH FUKS", "HB EBDC / OL 1ODC", "M WB", "MO K92 / MS DCM"],
+                3: ["UN O / MZ DR", "BOT DKC", "B FUEX", "BS 1DDC / H MAZO"],
+                4: ["SU MOBU / M DDUL", "GÖ TTER", "H MAZO", "W KD / CE LLE"]
             }
+        };
+
+        // Definition aller 10 Einzeltage
+        const MATCHDAYS_DEF = {
+            1:  { pair: 1, title: "Spieltag 1", date: "07.03.2026 (Samstag)", weekend: "Spieltag 1 & 2" },
+            2:  { pair: 1, title: "Spieltag 2", date: "08.03.2026 (Sonntag)", weekend: "Spieltag 1 & 2" },
+            3:  { pair: 2, title: "Spieltag 3", date: "18.04.2026 (Samstag)", weekend: "Spieltag 3 & 4" },
+            4:  { pair: 2, title: "Spieltag 4", date: "19.04.2026 (Sonntag)", weekend: "Spieltag 3 & 4" },
+            5:  { pair: 3, title: "Spieltag 5", date: "09.05.2026 (Samstag)", weekend: "Spieltag 5 & 6" },
+            6:  { pair: 3, title: "Spieltag 6", date: "10.05.2026 (Sonntag)", weekend: "Spieltag 5 & 6" },
+            7:  { pair: 4, title: "Spieltag 7", date: "10.10.2026 (Samstag)", weekend: "Spieltag 7 & 8" },
+            8:  { pair: 4, title: "Spieltag 8", date: "11.10.2026 (Sonntag)", weekend: "Spieltag 7 & 8" },
+            9:  { pair: 5, title: "Spieltag 9", date: "21.11.2026 (Samstag)", weekend: "Spieltag 9 & 10" },
+            10: { pair: 5, title: "Spieltag 10", date: "22.11.2026 (Sonntag)", weekend: "Spieltag 9 & 10" }
         };
 
         const SINGLE_DATA_2026 = [
@@ -716,8 +717,8 @@
         ];
 
         let allTeamsSet = new Set();
-        Object.values(SCHEDULE_TEMPLATE).forEach(st => {
-            Object.values(st.groups).forEach(g => {
+        Object.values(GROUPS_BY_PAIR).forEach(pairGroups => {
+            Object.values(pairGroups).forEach(g => {
                 g.forEach(t => allTeamsSet.add(t));
             });
         });
@@ -742,19 +743,22 @@
                 if (error) throw error;
 
                 appData.results = {};
-                for (let st = 1; st <= 5; st++) {
+                for (let st = 1; st <= 10; st++) {
                     appData.results[st] = { 1: [], 2: [], 3: [], 4: [] };
+                    let pairNum = MATCHDAYS_DEF[st].pair;
+                    let templateGroups = GROUPS_BY_PAIR[pairNum];
                     for (let g = 1; g <= 4; g++) {
-                        appData.results[st][g] = SCHEDULE_TEMPLATE[st].groups[g].map(t => ({ team: t, sp: null, wp: null, host: false }));
+                        appData.results[st][g] = templateGroups[g].map(t => ({ team: t, sp: null, wp: null, host: false }));
                     }
                 }
 
                 if (data && data.length > 0) {
                     data.forEach(row => {
-                        if (!appData.results[row.matchday]) appData.results[row.matchday] = {};
-                        if (!appData.results[row.matchday][row.group_num]) appData.results[row.matchday][row.group_num] = [];
+                        let st = row.matchday;
+                        if (!appData.results[st]) appData.results[st] = {};
+                        if (!appData.results[st][row.group_num]) appData.results[st][row.group_num] = [];
                         
-                        let groupList = appData.results[row.matchday][row.group_num];
+                        let groupList = appData.results[st][row.group_num];
                         let existing = groupList.find(x => x.team === row.team_name);
                         if (existing) {
                             existing.sp = row.sp;
@@ -773,9 +777,11 @@
         async function saveAdminData() {
             try {
                 let rowsToUpsert = [];
+                let pairNum = MATCHDAYS_DEF[currentAdminMatchday].pair;
+                let templateGroups = GROUPS_BY_PAIR[pairNum];
 
                 for (let gNum = 1; gNum <= 4; gNum++) {
-                    let groupTeams = SCHEDULE_TEMPLATE[currentAdminMatchday].groups[gNum];
+                    let groupTeams = templateGroups[gNum];
                     groupTeams.forEach(teamName => {
                         let spInput = document.querySelector(`.admin-sp-input[data-st="${currentAdminMatchday}"][data-group="${gNum}"][data-sp-team="${teamName}"]`);
                         let wpInput = document.querySelector(`.admin-wp-input[data-st="${currentAdminMatchday}"][data-group="${gNum}"][data-wp-team="${teamName}"]`);
@@ -802,7 +808,7 @@
                 await loadData();
                 renderTable();
                 renderScheduleView();
-                showNotification(`${SCHEDULE_TEMPLATE[currentAdminMatchday].title} erfolgreich in Supabase gespeichert!`, "success");
+                showNotification(`${MATCHDAYS_DEF[currentAdminMatchday].title} erfolgreich in Supabase gespeichert!`, "success");
                 switchTab('table');
             } catch (e) {
                 console.error("Fehler beim Speichern:", e);
@@ -869,13 +875,14 @@
             let teamStats = {};
             TEAMS.forEach(team => {
                 teamStats[team] = { name: team, totalWertP: 0, totalSpielP: 0, matchdays: {} };
-                for(let st = 1; st <= 5; st++) {
+                for(let st = 1; st <= 10; st++) {
                     teamStats[team].matchdays[st] = { wp: 0, sp: null, rank: '-', group: '-' };
                 }
             });
 
-            for (let st = 1; st <= 5; st++) {
-                const groups = SCHEDULE_TEMPLATE[st].groups;
+            for (let st = 1; st <= 10; st++) {
+                let pairNum = MATCHDAYS_DEF[st].pair;
+                const groups = GROUPS_BY_PAIR[pairNum];
                 const matchdayResults = appData.results[st] || {};
 
                 for (let gNum = 1; gNum <= 4; gNum++) {
@@ -962,23 +969,28 @@
                         </td>
                 `;
 
-                for (let st = 5; st >= 1; st--) {
-                    let md = team.matchdays[st];
-                    if (md.sp !== null) {
-                        let wpBadge = getWpBadgeClass(md.wp);
-                        let spColorClass = md.sp > 0 ? 'text-emerald-400' : (md.sp < 0 ? 'text-red-400 font-bold' : 'text-slate-200');
+                for (let pair = 5; pair >= 1; pair--) {
+                    let stA = pair * 2 - 1;
+                    let stB = pair * 2;
+                    let mdA = team.matchdays[stA];
+                    let mdB = team.matchdays[stB];
 
-                        rowHtml += `
-                            <td class="py-3 px-2 text-center border-l border-slate-800 text-xs">
-                                <div class="flex flex-col items-center gap-1">
-                                    <span class="px-2 py-0.5 rounded text-xs ${wpBadge}">${md.wp} WP</span>
-                                    <span class="${spColorClass} font-medium">${md.sp > 0 ? '+' + md.sp : md.sp} SP</span>
-                                </div>
-                            </td>
-                        `;
+                    rowHtml += `<td class="py-3 px-1 text-center border-l border-slate-800 text-xs">`;
+                    rowHtml += `<div class="flex flex-col gap-1 items-center">`;
+                    
+                    if (mdA.sp !== null) {
+                        rowHtml += `<div class="flex items-center gap-1 text-[10px]"><span class="text-slate-400">T1:</span><span class="px-1.5 py-0.5 rounded ${getWpBadgeClass(mdA.wp)}">${mdA.wp}W</span> <span class="${mdA.sp >= 0 ? 'text-emerald-400' : 'text-red-400'}">${mdA.sp > 0 ? '+' + mdA.sp : mdA.sp}S</span></div>`;
                     } else {
-                        rowHtml += `<td class="py-3 px-2 text-center border-l border-slate-800 text-slate-600 text-xs">&ndash;</td>`;
+                        rowHtml += `<div class="text-[10px] text-slate-600">T1: &ndash;</div>`;
                     }
+
+                    if (mdB.sp !== null) {
+                        rowHtml += `<div class="flex items-center gap-1 text-[10px]"><span class="text-slate-400">T2:</span><span class="px-1.5 py-0.5 rounded ${getWpBadgeClass(mdB.wp)}">${mdB.wp}W</span> <span class="${mdB.sp >= 0 ? 'text-emerald-400' : 'text-red-400'}">${mdB.sp > 0 ? '+' + mdB.sp : mdB.sp}S</span></div>`;
+                    } else {
+                        rowHtml += `<div class="text-[10px] text-slate-600">T2: &ndash;</div>`;
+                    }
+
+                    rowHtml += `</div></td>`;
                 }
                 rowHtml += `</tr>`;
                 tbody.innerHTML += rowHtml;
@@ -1028,9 +1040,9 @@
             const modalBody = document.getElementById('modal-team-body');
             modalBody.innerHTML = '';
 
-            for (let st = 1; st <= 5; st++) {
+            for (let st = 1; st <= 10; st++) {
                 let md = team.matchdays[st];
-                let stInfo = SCHEDULE_TEMPLATE[st];
+                let stInfo = MATCHDAYS_DEF[st];
                 let spText = md.sp !== null ? (md.sp > 0 ? '+' + md.sp : md.sp) + ' SP' : 'offen';
                 let spColor = md.sp !== null ? (md.sp > 0 ? 'text-emerald-400' : (md.sp < 0 ? 'text-red-400 font-bold' : 'text-slate-200')) : 'text-slate-500';
 
@@ -1054,27 +1066,29 @@
             const container = document.getElementById('schedule-container');
             container.innerHTML = '';
 
-            for (let st = 1; st <= 5; st++) {
+            for (let st = 1; st <= 10; st++) {
                 if (filterVal !== 'all' && filterVal !== String(st)) continue;
 
-                let matchdayInfo = SCHEDULE_TEMPLATE[st];
+                let mdDef = MATCHDAYS_DEF[st];
+                let pairNum = mdDef.pair;
+                let templateGroups = GROUPS_BY_PAIR[pairNum];
                 let matchdayResults = appData.results[st] || {};
 
                 let stCard = `
                     <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-lg">
                         <div class="bg-gradient-to-r from-slate-900 to-slate-800 px-6 py-4 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                             <h3 class="font-bold text-white text-base sm:text-lg flex items-center gap-2">
-                                <i class="fa-solid fa-calendar text-brand-400"></i> ${matchdayInfo.title}
+                                <i class="fa-solid fa-calendar text-brand-400"></i> ${mdDef.title} <span class="text-xs text-slate-400 font-normal">(${mdDef.weekend})</span>
                             </h3>
                             <span class="text-xs bg-slate-800 text-slate-300 border border-slate-700 px-3 py-1 rounded-full font-medium">
-                                <i class="fa-regular fa-clock mr-1"></i> ${matchdayInfo.date}
+                                <i class="fa-regular fa-clock mr-1"></i> ${mdDef.date}
                             </span>
                         </div>
                         <div class="p-4 sm:p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 `;
 
                 for (let gNum = 1; gNum <= 4; gNum++) {
-                    let groupTeamsTemplate = matchdayInfo.groups[gNum];
+                    let groupTeamsTemplate = templateGroups[gNum];
                     let groupRes = matchdayResults[gNum] || [];
 
                     let groupTeams = groupTeamsTemplate.map(t => {
@@ -1136,13 +1150,13 @@
         function renderAdminView() {
             const btnContainer = document.getElementById('admin-matchday-buttons');
             btnContainer.innerHTML = '';
-            for (let st = 1; st <= 5; st++) {
+            for (let st = 1; st <= 10; st++) {
                 let isActive = currentAdminMatchday === st;
                 btnContainer.innerHTML += `
-                    <button onclick="setAdminMatchday(${st})" class="py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${
+                    <button onclick="setAdminMatchday(${st})" class="py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 ${
                         isActive ? 'bg-brand-600 text-white shadow-lg shadow-brand-600/30' : 'bg-slate-900 text-slate-400 hover:bg-slate-800 hover:text-white border border-slate-800'
                     }">
-                        <i class="fa-solid fa-calendar-day"></i> ${SCHEDULE_TEMPLATE[st].title}
+                        <i class="fa-solid fa-calendar-day text-[10px]"></i> ${MATCHDAYS_DEF[st].title}
                     </button>
                 `;
             }
@@ -1150,20 +1164,21 @@
             const groupsContainer = document.getElementById('admin-groups-container');
             groupsContainer.innerHTML = '';
 
-            const matchdayInfo = SCHEDULE_TEMPLATE[currentAdminMatchday];
+            let mdDef = MATCHDAYS_DEF[currentAdminMatchday];
+            let pairNum = mdDef.pair;
+            let templateGroups = GROUPS_BY_PAIR[pairNum];
             let matchdayResults = appData.results[currentAdminMatchday] || {};
 
             for (let gNum = 1; gNum <= 4; gNum++) {
-                let groupTeams = matchdayInfo.groups[gNum];
+                let groupTeams = templateGroups[gNum];
                 let groupRes = matchdayResults[gNum] || [];
 
                 let groupCard = `
                     <div class="bg-slate-900 p-5 rounded-2xl border border-slate-800 space-y-4 shadow-lg">
                         <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                             <h3 class="font-bold text-white text-sm uppercase tracking-wide flex items-center gap-2">
-                                <i class="fa-solid fa-layer-group text-brand-400"></i> Gruppe ${gNum}
+                                <i class="fa-solid fa-layer-group text-brand-400"></i> Gruppe ${gNum} <span class="text-xs text-slate-400 font-normal">(${mdDef.title} - ${mdDef.date})</span>
                             </h3>
-                            <span class="text-xs text-slate-400">Ausrichter (🏠) & Punkte eintragen</span>
                         </div>
                         <div class="space-y-3">
                 `;
@@ -1191,7 +1206,7 @@
                                 </div>
                                 <div class="flex items-center gap-1">
                                     <span class="text-[10px] text-slate-400">SP:</span>
-                                    <input type="number" step="any" data-sp-team="${teamName}" data-group="${gNum}" data-sp-team="${teamName}" value="${spVal}" placeholder="SP" class="admin-sp-input w-20 bg-slate-900 border border-slate-700 text-slate-100 px-2 py-1.5 rounded-lg text-xs text-right focus:outline-none focus:border-brand-500 font-bold">
+                                    <input type="number" step="any" data-sp-team="${teamName}" data-group="${gNum}" value="${spVal}" placeholder="SP" class="admin-sp-input w-20 bg-slate-900 border border-slate-700 text-slate-100 px-2 py-1.5 rounded-lg text-xs text-right focus:outline-none focus:border-brand-500 font-bold">
                                 </div>
                             </div>
                         </div>
